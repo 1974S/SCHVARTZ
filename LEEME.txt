@@ -1,0 +1,13 @@
+SCHVARTZ - Unidades de la familia (PWA)
+
+PUBLICAR (igual que Flota Vicuña):
+1. Crear un repositorio nuevo en GitHub (ej. SCHVARTZ).
+2. Add file > Upload files: subir TODOS los archivos de esta carpeta. Commit.
+3. Settings > Pages > Source: Deploy from a branch (main / root).
+4. Abrir https://TU-USUARIO.github.io/SCHVARTZ/ e instalar como app.
+
+FIREBASE (opcional, para ver fotos al escanear el QR y sincronizar celular/PC):
+- Crear proyecto Firebase > Realtime Database > Authentication: habilitar "Anónimo".
+- Reglas de la base:
+  {"rules":{".read":"auth != null",".write":"auth != null","publico":{".read":true}}}
+- En la app: Ajustes > Sincronización > pegar firebaseConfig > Conectar.
