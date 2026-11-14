@@ -73,13 +73,6 @@ label{display:block;font-size:12px;color:var(--mut);margin-bottom:8px}
 .lock{position:fixed;inset:0;background:var(--bg);z-index:40;display:flex;align-items:center;justify-content:center;padding:20px}
 .lock .card{max-width:320px;width:100%;text-align:center}
 .qrbox svg{width:100%;max-width:300px;height:auto;background:#fff;padding:6px;border-radius:8px}
-.rep{background:#fff;color:#000;padding:16px;font-size:13px;max-width:760px;margin:0 auto}
-.rep .rot{border:1px solid #000;display:inline-block;padding:4px 10px;margin-bottom:10px;font-size:12px}
-.rep h1{text-align:center;font-size:17px;margin:6px 0 2px;text-transform:uppercase}
-.rep h4{text-align:center;margin:0 0 2px;font-size:14px}
-.rep p.c{text-align:center;font-style:italic;margin:0 0 12px;font-size:12px}
-.rep h5{font-size:13px;text-transform:uppercase;margin:14px 0 4px}
-.rep .tbl th{background:#e5e5e5;color:#000}.rep .tbl td{color:#000}
 .qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .qrs>div{border:1px dashed #888;padding:8px;text-align:center;color:#000;background:#fff;font-size:12px}
 .qrs svg{width:100%;height:auto}
@@ -134,9 +127,31 @@ select,input,textarea{background:#071d42;border-color:#1b55a3;color:var(--tx)}
 .cal .d.sel{background:#22c1f5;color:#04162e}.cal .d.today{outline-color:#22c1f5}
 .alert{border-left-width:4px}
 .lock{background:#06142b}
-.rep select,.rep input{background:#fff;color:#000}
-.rep .tbl th{background:#e5e5e5;color:#000}.rep .tbl th,.rep .tbl td{border-color:#999}
 .toast{background:#0b2d62;border:1px solid #22c1f5;color:#e6f1ff}
+
+/* ===== Reporte (QR) con el estilo de la app ===== */
+.rep{color:var(--tx);padding:0 12px 40px;font-size:14px;max-width:760px;margin:0 auto}
+.rep .top{display:flex;align-items:center;gap:10px;margin:0 -12px 12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:linear-gradient(#0a2552,#081d43);border-bottom:1px solid #17488c}
+.rep .top img{width:38px;height:38px;border-radius:10px;background:#fff;padding:2px}
+.rep .top b{display:block;font-size:17px;letter-spacing:.06em;text-transform:uppercase;font-weight:800}
+.rep .top span{font-size:12px;color:var(--mut)}
+.rep h1{font:600 11px var(--mono);letter-spacing:.18em;color:#38bdf8;text-transform:uppercase;text-align:left;margin:4px 2px 2px}
+.rep h4{font-size:22px;margin:0 2px 2px;font-weight:800;text-align:left}
+.rep p.c{display:inline-block;font:700 13px var(--mono);letter-spacing:.12em;background:#123a74;border:1px solid #2a6fc2;color:#e6f1ff;padding:2px 10px;border-radius:6px;margin:2px 2px 12px;font-style:normal}
+.rep h5{font:600 12px var(--mono);letter-spacing:.14em;color:#6fb7ee;margin:20px 2px 8px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.rep h5::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#1b55a3,transparent)}
+.rep .tbl{background:linear-gradient(160deg,rgba(18,64,132,.45),rgba(8,32,72,.6));border-radius:10px;overflow:hidden;border-collapse:separate;border-spacing:0;border:1px solid #1b55a3}
+.rep .tbl th,.rep .tbl td{border:0;border-bottom:1px solid #153f7a;color:var(--tx)}
+.rep .tbl tr:last-child th,.rep .tbl tr:last-child td{border-bottom:0}
+.rep .tbl th{background:#123a74;color:#cfe6ff;font-weight:600}
+.rep p{color:var(--mut)}
+.rep .gal img{border:1px solid #1b55a3;border-radius:10px}
+.rep .kpis{margin:6px 0 4px;grid-template-columns:repeat(3,1fr)!important}.rep .kpi{padding:10px 4px}
+.rep .gform{background:linear-gradient(160deg,rgba(18,64,132,.45),rgba(8,32,72,.6));border:1px solid #1b55a3;border-radius:10px;padding:12px;margin-top:6px}
+.rep .gform label{color:var(--mut);display:block;font-size:12px}
+.rep .gform input,.rep .gform select{width:100%;padding:10px;margin:3px 0 8px;border:1px solid #1b55a3;border-radius:8px;font:inherit;background:#071d42;color:var(--tx)}
+.rep .gform button{background:linear-gradient(180deg,#38c8f8,#1597d6);color:#03162e;border:0;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:700;width:100%;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 0 14px #22c1f544}
+@media print{body.printing .rep{color:#000}body.printing .rep .top{background:#fff;border-bottom:1px solid #000}body.printing .rep .top span,body.printing .rep p{color:#444}body.printing .rep h1,body.printing .rep h5{color:#000}body.printing .rep h5::after{display:none}body.printing .rep p.c{background:#eee;color:#000;border-color:#999}body.printing .rep .tbl{background:#fff;border-color:#999}body.printing .rep .tbl th{background:#e5e5e5;color:#000}body.printing .rep .tbl td{color:#000;border-color:#bbb}body.printing .rep .kpi{background:#fff;border-color:#999}body.printing .rep .kpi b{color:#000;text-shadow:none}body.printing .rep .kpi .mut{color:#333}body.printing .rep .gform{display:none}}
 @media print{body.printing #app,body.printing .modal,body.printing nav,body.printing header,body.printing .fab{display:none!important}body.printing #printArea{display:block}body.printing{background:#fff}.qrs>div{break-inside:avoid}}
 </style>
 </head>
@@ -366,17 +381,17 @@ function gastosHTML(r,pend){pend=pend||[];
  let tm=+(arr(r.gt)[0]||0),ty=+(arr(r.gt)[1]||0);pend.forEach(p=>{if(r.gm&&p.fecha.startsWith(r.gm))tm+=+p.monto;if(r.gy&&p.fecha.startsWith(r.gy))ty+=+p.monto});
  if(!r.gm&&!rows.length)return '';
  return `<h5>5. Gastos</h5><table class="tbl"><tr><th>Mes en curso</th><td>${money(tm)}</td><th>Año en curso</th><td>${money(ty)}</td></tr></table>${rows.length?`<table class="tbl" style="margin-top:6px"><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Monto</th></tr>${rows.map(x=>`<tr><td>${fmtD(x.f)}</td><td>${esc(x.c)}</td><td>${esc(x.n)}</td><td>${money(x.m)}</td></tr>`).join('')}</table>`:'<p>Sin gastos registrados.</p>'}`}
-function gformHTML(){const st='width:100%;padding:9px;margin:3px 0 8px;border:1px solid #888;border-radius:8px;font:inherit;background:#fff;color:#000',lb='display:block;color:#333;font-size:12px';
- return `<div class="rep" style="margin-top:4px;border-top:2px solid #0f766e"><h5>Cargar un gasto de esta unidad</h5>
- <label style="${lb}">Fecha<input id="gf_f" type="date" value="${today()}" style="${st}"></label>
- <label style="${lb}">Categoría<select id="gf_c" style="${st}">${['Combustible','Repuestos','Lavado','Peaje','Estacionamiento','Seguro','Multa','Otro'].map(c=>`<option>${c}</option>`).join('')}</select></label>
- <label style="${lb}">Monto $<input id="gf_m" type="number" inputmode="decimal" step="any" style="${st}"></label>
- <label style="${lb}">Litros (combustible, opcional)<input id="gf_l" type="number" inputmode="decimal" step="any" style="${st}"></label>
- <label style="${lb}">Kilometraje (opcional)<input id="gf_k" type="number" inputmode="numeric" style="${st}"></label>
- <label style="${lb}">Detalle (opcional)<input id="gf_n" maxlength="100" style="${st}"></label>
- <label style="${lb}">Tu nombre (opcional)<input id="gf_q" maxlength="40" style="${st}"></label>
- <button id="gf_b" style="background:#0f766e;color:#fff;border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:600;width:100%">Cargar gasto</button><div id="gf_msg" style="margin-top:8px;font-size:13px"></div></div>`}
-async function sendGasto(base,id,pend,r){const g=k=>$('#gf_'+k).value.trim(),msg=(t,ok)=>{const e=$('#gf_msg');e.style.color=ok?'#0a7a2f':'#b00020';e.textContent=t};
+function gformHTML(){
+ return `<div class="rep"><div class="gform"><h5 style="margin-top:0">Cargar un gasto de esta unidad</h5>
+ <label>Fecha<input id="gf_f" type="date" value="${today()}"></label>
+ <label>Categoría<select id="gf_c">${['Combustible','Repuestos','Lavado','Peaje','Estacionamiento','Seguro','Multa','Otro'].map(c=>`<option>${c}</option>`).join('')}</select></label>
+ <label>Monto $<input id="gf_m" type="number" inputmode="decimal" step="any"></label>
+ <label>Litros (combustible, opcional)<input id="gf_l" type="number" inputmode="decimal" step="any"></label>
+ <label>Kilometraje (opcional)<input id="gf_k" type="number" inputmode="numeric"></label>
+ <label>Detalle (opcional)<input id="gf_n" maxlength="100"></label>
+ <label>Tu nombre (opcional)<input id="gf_q" maxlength="40"></label>
+ <button id="gf_b">Cargar gasto</button><div id="gf_msg" style="margin-top:8px;font-size:13px"></div></div></div>`}
+async function sendGasto(base,id,pend,r){const g=k=>$('#gf_'+k).value.trim(),msg=(t,ok)=>{const e=$('#gf_msg');e.style.color=ok?'#34d399':'#fb7185';e.textContent=t};
  const monto=+g('m');if(!g('f')||!(monto>0))return msg('Completá la fecha y un monto mayor a cero.');
  const o={fecha:g('f'),cat:g('c'),monto,t:Date.now()};if(+g('l')>0)o.litros=+g('l');if(+g('k')>0)o.km=+g('k');if(g('n'))o.nota=g('n').slice(0,100);if(g('q'))o.quien=g('q').slice(0,40);
  $('#gf_b').disabled=true;
@@ -386,13 +401,16 @@ async function sendGasto(base,id,pend,r){const g=k=>$('#gf_'+k).value.trim(),msg
  $('#gf_b').disabled=false}
 function reportHTML(r,fotos){const SV=arr(r.s),v={...r,venc:arr(r.venc).map(([tipo,fecha])=>({tipo,fecha}))},pm=pmCalc(v);
  const T=rows=>`<table class="tbl">${rows.map(([k,x])=>`<tr><th style="width:38%">${esc(k)}</th><td>${esc(x)}</td></tr>`).join('')}</table>`;
- return `<div class="rep"><div class="rot"><b>SCHVARTZ</b><br>Unidades de la familia</div><h1>Reporte de unidad</h1><h4>${esc(vname(r))}</h4><p class="c">${esc(r.patente||'')}</p>${fotos==='live'?'<div class="gal" id="galv"></div>':fotos&&fotos.length?'<div class="gal">'+fotos.map(f=>`<img src="${f}" onclick="this.classList.toggle('big')">`).join('')+'</div>':''}
+ const nx=[pm.nextKm!=null?nf(pm.nextKm)+' km':'',pm.nextDate?fmtD(pm.nextDate):''].filter(Boolean)[0]||'—',stc={ok:'var(--grn)',warn:'var(--amb)',bad:'var(--red)'}[pm.state]||'var(--blu)';
+ return `<div class="rep"><div class="top"><img src="icon-192.png" alt=""><div><b>SCHVARTZ</b><span>Unidades de la familia · Reporte</span></div></div><h1>Reporte de unidad</h1><h4>${esc(vname(r))}</h4>${r.patente?`<p class="c">${esc(r.patente)}</p>`:''}
+ <div class="kpis"><div class="kpi"><span class="mut">Kilometraje</span><b>${nf(r.km)}</b></div><div class="kpi"><span class="mut">Próximo service</span><b style="font-size:15px">${nx}</b></div><div class="kpi"><span class="mut">Estado</span><b style="font-size:15px;color:${stc}">${stTxt[pm.state]||'—'}</b></div></div>
+ ${fotos==='live'?'<div class="gal" id="galv"></div>':fotos&&fotos.length?'<div class="gal">'+fotos.map(f=>`<img src="${f}" onclick="this.classList.toggle('big')">`).join('')+'</div>':''}
  <h5>1. Datos del móvil</h5>${T([['Móvil',vname(r)],['Patente',r.patente||'—'],['Marca / modelo',[r.marca,r.modelo].filter(Boolean).join(' ')||'—'],['Año',r.anio||'—'],['Tipo / combustible',[r.tipo,r.comb].filter(Boolean).join(' · ')||'—'],['Kilometraje',nf(r.km)+' km'+(r.kmFecha?' ('+fmtD(r.kmFecha)+')':'')]])}
  <h5>2. Vencimientos</h5>${v.venc.length?`<table class="tbl"><tr><th>Documento</th><th>Vence</th><th>Estado</th></tr>${v.venc.map(e=>`<tr><td>${esc(e.tipo)}</td><td>${fmtD(e.fecha)}</td><td>${stTxt[vencState(e.fecha)]}</td></tr>`).join('')}</table>`:'<p>Sin vencimientos cargados.</p>'}
  <h5>3. Mantenimiento preventivo</h5>${T([['Intervalo',(+r.pmKm?nf(r.pmKm)+' km':'—')+' / '+(+r.pmMeses?r.pmMeses+' meses':'—')],['Último service',(r.lastPmKm!==''&&r.lastPmKm!=null?nf(r.lastPmKm)+' km':'—')+(r.lastPmFecha?' · '+fmtD(r.lastPmFecha):'')],['Próximo service',[pm.nextKm!=null?nf(pm.nextKm)+' km':'',pm.nextDate?fmtD(pm.nextDate):''].filter(Boolean).join(' · ')||'—'],['Estado',stTxt[pm.state]]])}
  <h5>4. Últimos servicios</h5>${SV.length?`<table class="tbl"><tr><th>Fecha</th><th>Tipo</th><th>Km</th><th>Detalle</th></tr>${SV.map(s=>`<tr><td>${fmtD(s[0])}</td><td>${esc(s[1])}</td><td>${nf(s[2])}</td><td>${esc(s[3])}</td></tr>`).join('')}</table>`:'<p>Sin servicios registrados.</p>'}
  <div id="gbox">${gastosHTML(r,[])}</div>
- <p style="font-size:11px;color:#555;margin-top:14px">Datos al ${new Date(r.g).toLocaleString('es-AR')} · Reporte de solo lectura.</p></div>`}
+ <p style="font-size:11px;margin-top:14px">Datos al ${new Date(r.g).toLocaleString('es-AR')} · Reporte de solo lectura.</p></div>`}
 function printHTML(h){$('#printArea').innerHTML=h;document.body.classList.add('printing');setTimeout(()=>{window.print()},100)}
 window.addEventListener('afterprint',()=>document.body.classList.remove('printing'));
 const httpOk=()=>/^https?:$/.test(location.protocol);
