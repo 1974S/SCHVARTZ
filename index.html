@@ -157,7 +157,7 @@ select,input,textarea{background:#071d42;border-color:#1b55a3;color:var(--tx)}
 </head>
 <body>
 <div id="app">
-  <div id="top"><header><button id="back" data-a="back" style="display:none">‹</button><h1 style="flex:1"><span id="title">SCHVARTZ</span><span class="sub" id="subt">Unidades de la familia</span></h1><span id="sync" class="mut" style="color:inherit;opacity:.8;font-size:12px"></span><button id="adm" data-a="adm" title="Administrador">🔒</button></header>
+  <div id="top"><header><button id="back" data-a="back" style="display:none">‹</button><h1 style="flex:1"><span id="title">SCHVARTZ</span><span class="sub" id="subt">Unidades de la familia</span></h1><span id="sync" class="mut" style="color:inherit;opacity:.8;font-size:12px"></span><button id="adm" data-a="adm" title="Solo lectura"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fb7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" fill="#4a1530"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button></header>
   <nav id="nav"></nav></div>
   <div id="view"></div>
 </div>
@@ -522,7 +522,7 @@ function importQr(snap){if(!IS_ADMIN)return;const o=snap.val();if(!o)return;let 
   db.expenses.push({id:gid,vid,fecha:g.fecha,cat:g.cat,monto:+g.monto||0,litros:g.litros?+g.litros:'',km:g.km?+g.km:'',nota:[g.nota,g.quien&&'('+g.quien+')'].filter(Boolean).join(' '),qr:true});if(g.km)bumpKm(v,g.km);n++})});
  if(n){save();render();toast(n+' gasto(s) cargado(s) desde el QR')}
  Object.keys(o).forEach(vid=>Object.keys(o[vid]||{}).forEach(gid=>{if(db.expenses.some(e=>e.id===gid)&&qrRef)qrRef.child(vid).child(gid).remove()}))}
-function setAdmin(u){const a=!!(u&&!u.isAnonymous&&u.email===ADMIN_EMAIL),ch=a!==IS_ADMIN;IS_ADMIN=a;$('#adm').textContent=a?'🔓':'🔒';$('#subt').textContent='Unidades de la familia · '+(a?'Admin':'Lectura');qrWatch(a);if(ch){render();if(a&&fbRef)fbRef.once('value').then(fbHandle)}}
+function setAdmin(u){const a=!!(u&&!u.isAnonymous&&u.email===ADMIN_EMAIL),ch=a!==IS_ADMIN;IS_ADMIN=a;$('#adm').innerHTML=a?'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" fill="#0b3b33"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>':'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fb7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" fill="#4a1530"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';$('#adm').style.borderColor=a?'#34d399':'#2a6fc2';$('#adm').title=a?'Administrador activo':'Solo lectura (tocá para ingresar)';$('#subt').textContent='Unidades de la familia · '+(a?'Admin':'Lectura');qrWatch(a);if(ch){render();if(a&&fbRef)fbRef.once('value').then(fbHandle)}}
 function fbHandle(snap){const r=snap.val();
  if(!r){if(IS_ADMIN)syncPush(true);setSync('ok');return}
  if((r.updated||0)>db.updated){db.vehicles=arr(r.vehicles);db.services=arr(r.services);db.expenses=arr(r.expenses);db.kmlog=arr(r.kmlog);if(r.checklists)db.settings.checklists=r.checklists;db.updated=r.updated;db=norm(db);localStorage.setItem(KEY,JSON.stringify(db));render();pubInit()}
