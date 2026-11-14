@@ -302,13 +302,13 @@ const baseUrl=()=>location.origin+location.pathname;
 const dbBase=()=>((db.settings.fb&&db.settings.fb.databaseURL)||'').replace(/\/$/,'');
 const qrUrl=v=>{const b=dbBase();return b?baseUrl()+'#v='+v.id+'&f='+b64e(b):baseUrl()+'#r='+b64e(snapshot(v))};
 function qrSvg(t){const q=qrcode(0,'L');q.addData(t);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}
-function reportHTML(r,fotos){const v={...r,venc:r.venc.map(([tipo,fecha])=>({tipo,fecha}))},pm=pmCalc(v);
+function reportHTML(r,fotos){const SV=arr(r.s),v={...r,venc:arr(r.venc).map(([tipo,fecha])=>({tipo,fecha}))},pm=pmCalc(v);
  const T=rows=>`<table class="tbl">${rows.map(([k,x])=>`<tr><th style="width:38%">${esc(k)}</th><td>${esc(x)}</td></tr>`).join('')}</table>`;
  return `<div class="rep"><div class="rot"><b>SCHVARTZ</b><br>Unidades de la familia</div><h1>Reporte de unidad</h1><h4>${esc(vname(r))}</h4><p class="c">${esc(r.patente||'')}</p>${fotos==='live'?'<div class="gal" id="galv"></div>':fotos&&fotos.length?'<div class="gal">'+fotos.map(f=>`<img src="${f}" onclick="this.classList.toggle('big')">`).join('')+'</div>':''}
  <h5>1. Datos del móvil</h5>${T([['Móvil',vname(r)],['Patente',r.patente||'—'],['Marca / modelo',[r.marca,r.modelo].filter(Boolean).join(' ')||'—'],['Año',r.anio||'—'],['Tipo / combustible',[r.tipo,r.comb].filter(Boolean).join(' · ')||'—'],['Kilometraje',nf(r.km)+' km'+(r.kmFecha?' ('+fmtD(r.kmFecha)+')':'')]])}
  <h5>2. Vencimientos</h5>${v.venc.length?`<table class="tbl"><tr><th>Documento</th><th>Vence</th><th>Estado</th></tr>${v.venc.map(e=>`<tr><td>${esc(e.tipo)}</td><td>${fmtD(e.fecha)}</td><td>${stTxt[vencState(e.fecha)]}</td></tr>`).join('')}</table>`:'<p>Sin vencimientos cargados.</p>'}
  <h5>3. Mantenimiento preventivo</h5>${T([['Intervalo',(+r.pmKm?nf(r.pmKm)+' km':'—')+' / '+(+r.pmMeses?r.pmMeses+' meses':'—')],['Último service',(r.lastPmKm!==''&&r.lastPmKm!=null?nf(r.lastPmKm)+' km':'—')+(r.lastPmFecha?' · '+fmtD(r.lastPmFecha):'')],['Próximo service',[pm.nextKm!=null?nf(pm.nextKm)+' km':'',pm.nextDate?fmtD(pm.nextDate):''].filter(Boolean).join(' · ')||'—'],['Estado',stTxt[pm.state]]])}
- <h5>4. Últimos servicios</h5>${r.s.length?`<table class="tbl"><tr><th>Fecha</th><th>Tipo</th><th>Km</th><th>Detalle</th></tr>${r.s.map(s=>`<tr><td>${fmtD(s[0])}</td><td>${esc(s[1])}</td><td>${nf(s[2])}</td><td>${esc(s[3])}</td></tr>`).join('')}</table>`:'<p>Sin servicios registrados.</p>'}
+ <h5>4. Últimos servicios</h5>${SV.length?`<table class="tbl"><tr><th>Fecha</th><th>Tipo</th><th>Km</th><th>Detalle</th></tr>${SV.map(s=>`<tr><td>${fmtD(s[0])}</td><td>${esc(s[1])}</td><td>${nf(s[2])}</td><td>${esc(s[3])}</td></tr>`).join('')}</table>`:'<p>Sin servicios registrados.</p>'}
  <p style="font-size:11px;color:#555;margin-top:14px">Datos al ${new Date(r.g).toLocaleString('es-AR')} · Reporte de solo lectura.</p></div>`}
 function printHTML(h){$('#printArea').innerHTML=h;document.body.classList.add('printing');setTimeout(()=>{window.print()},100)}
 window.addEventListener('afterprint',()=>document.body.classList.remove('printing'));
@@ -445,7 +445,7 @@ async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('
  let r;try{r=await get('/r',20000)}catch(e){return msg('No se pudo conectar con la base de datos (sin internet o demasiado lento). Intentá de nuevo.')}
  if(r&&r.error)return msg('Firebase rechazó la lectura ('+esc(r.error)+'). Falta publicar la regla de lectura pública “publico” en Realtime Database → Reglas.');
  if(!r)return msg('Esta unidad todavía no está publicada. Abrí la app SCHVARTZ en el dispositivo donde está cargada y esperá a que diga “sincronizado”.');
- out(reportHTML(r,'live'));
+ try{out(reportHTML(r,'live'))}catch(e){return msg('No se pudo mostrar el reporte: '+esc(e.message))}
  for(let i=0;i<4;i++){try{const f=await get('/fotos/'+i,30000);if(typeof f==='string'&&f.startsWith('data:image')){const im=new Image();im.src=f;im.onclick=()=>im.classList.toggle('big');$('#galv').appendChild(im)}else if(!f)break}catch(e){break}}}
 /* ============ Arranque ============ */
 function start(){render();fbStart()}
