@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#0a2552">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
@@ -88,14 +88,63 @@ label{display:block;font-size:12px;color:var(--mut);margin-bottom:8px}
 .gal img,.fslot{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block;cursor:pointer}
 .gal img.big{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:50;border-radius:0;aspect-ratio:auto}
 .fslot{border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:13px;text-align:center}
+
+/* ===== Tema HUD (estilo Productividad Vicuña) ===== */
+:root{--bg:#06142b;--card:#0b2756;--tx:#e6f1ff;--mut:#8fb0d8;--bd:#1b4f96;--ac:#22c1f5;--acx:#04162e;--red:#fb7185;--amb:#fb923c;--grn:#34d399;--blu:#38bdf8;--lab:#123a74;--mono:ui-monospace,SFMono-Regular,Consolas,Menlo,monospace}
+html{background:#06142b}
+body{background:radial-gradient(120% 60% at 50% 0,#0d3a7a 0,#071a3a 45%,#050f24 100%) fixed;color:var(--tx)}
+#top{position:sticky;top:0;z-index:8;background:linear-gradient(#0a2552,#081d43);border-bottom:1px solid #17488c}
+header{position:static;background:none;color:var(--tx);padding:calc(8px + env(safe-area-inset-top)) 14px 4px}
+header h1{font-size:17px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;line-height:1.1}
+header .sub{display:block;font-size:12px;color:var(--mut);font-weight:400;letter-spacing:0;text-transform:none;margin-top:1px}
+header button{color:#cfe6ff}
+#adm{width:36px;height:36px;border-radius:12px;border:1px solid #2a6fc2;background:#0f3a7c;font-size:17px;padding:0;box-shadow:0 0 12px #22c1f533}
+nav{position:static;background:none;border:0;padding:0 4px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:1 0 auto;min-width:0;padding:10px 12px 9px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8fb0d8;border-bottom:2px solid transparent;flex-direction:row}
+nav button svg{display:none}
+nav button.on{color:#22c1f5;border-bottom-color:#22c1f5;font-weight:700;text-shadow:0 0 10px #22c1f566}
+#view{padding:10px 12px 90px;max-width:900px}
+.card,.kpi,.hud{background:linear-gradient(160deg,rgba(18,64,132,.55),rgba(8,32,72,.7));border:1px solid #1b55a3;border-radius:10px;position:relative;box-shadow:inset 0 0 22px #1580ff12}
+.kpi::before,.hud::before{content:"";position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-top:2px solid #22c1f5;border-left:2px solid #22c1f5;border-radius:8px 0 0 0}
+.kpis{grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:620px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{display:flex;flex-direction:column-reverse;align-items:center;justify-content:center;text-align:center;padding:12px 6px;min-height:68px}
+.kpi .mut{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#9cc0ea}
+.kpi b{font:800 24px/1.15 var(--mono);color:#38bdf8;text-shadow:0 0 14px #38bdf855}
+.kpi:nth-child(4n+2) b{color:#34d399;text-shadow:0 0 14px #34d39955}
+.kpi:nth-child(4n+3) b{color:#fb923c;text-shadow:0 0 14px #fb923c55}
+.kpi:nth-child(4n+4) b{color:#a5b4fc;text-shadow:0 0 14px #a5b4fc55}
+h2{font:600 12px var(--mono);letter-spacing:.14em;color:#6fb7ee;margin:20px 2px 8px;display:flex;align-items:center;gap:8px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#1b55a3,transparent)}
+.hud{padding:0;overflow:hidden;margin-bottom:10px}
+.hud .hh{display:flex;justify-content:space-between;padding:7px 12px;font:600 10.5px var(--mono);letter-spacing:.16em;color:#38bdf8;border-bottom:1px solid #1b55a3;background:#08224a}
+.hud .hb{padding:10px 12px}
+.btn{background:linear-gradient(180deg,#38c8f8,#1597d6);color:#03162e;border-radius:9px;box-shadow:0 0 14px #22c1f544;text-transform:uppercase;letter-spacing:.05em;font-size:12px}
+.btn.sec{background:#123e7e;color:#cfe6ff;border:1px solid #2a6fc2;box-shadow:none}
+.btn.del{background:#4a1530;color:#fda4af;box-shadow:none;border:1px solid #7f1d3d}
+.fab{bottom:calc(20px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#3b9bff,#1565e0);color:#fff;box-shadow:0 0 22px #2f8cff99}
+.chips button{background:#0b2d62;border-color:#1b55a3;color:#cfe6ff}.chips button.on{background:#22c1f5;color:#04162e;border-color:#22c1f5}
+.chip{background:#123a74;color:#cfe6ff;font-family:var(--mono);font-size:11px;letter-spacing:.03em}
+select,input,textarea{background:#071d42;border-color:#1b55a3;color:var(--tx)}
+.sheet{background:linear-gradient(160deg,#0d3270,#071d42);border:1px solid #1b55a3}
+.modal{background:#02081799}
+.bar{background:#0a2552;height:9px}.bar i{background:linear-gradient(90deg,#1597d6,#5eead4);box-shadow:0 0 10px #22c1f588}
+.tbl th{background:#123a74;color:#cfe6ff}.tbl th,.tbl td{border-color:#1b55a3}
+.cal .d.sel{background:#22c1f5;color:#04162e}.cal .d.today{outline-color:#22c1f5}
+.alert{border-left-width:4px}
+.lock{background:#06142b}
+.rep select,.rep input{background:#fff;color:#000}
+.rep .tbl th{background:#e5e5e5;color:#000}.rep .tbl th,.rep .tbl td{border-color:#999}
+.toast{background:#0b2d62;border:1px solid #22c1f5;color:#e6f1ff}
 @media print{body.printing #app,body.printing .modal,body.printing nav,body.printing header,body.printing .fab{display:none!important}body.printing #printArea{display:block}body.printing{background:#fff}.qrs>div{break-inside:avoid}}
 </style>
 </head>
 <body>
 <div id="app">
-  <header><button id="back" data-a="back" style="display:none">‹</button><h1 id="title">SCHVARTZ</h1><span id="sync" class="mut" style="color:inherit;opacity:.8;font-size:12px"></span><button id="adm" data-a="adm" title="Administrador">🔒</button></header>
+  <div id="top"><header><button id="back" data-a="back" style="display:none">‹</button><h1 style="flex:1"><span id="title">SCHVARTZ</span><span class="sub" id="subt">Unidades de la familia</span></h1><span id="sync" class="mut" style="color:inherit;opacity:.8;font-size:12px"></span><button id="adm" data-a="adm" title="Administrador">🔒</button></header>
+  <nav id="nav"></nav></div>
   <div id="view"></div>
-  <nav id="nav"></nav>
 </div>
 <div id="modal" class="modal"></div>
 <div id="printArea"></div>
@@ -210,14 +259,23 @@ function calendar(){const{y,m}=ui.cal;const off=(new Date(y,m,1).getDay()+6)%7,d
   c+=`<div class="d ${iso===today()?'today':''} ${iso===ui.sel?'sel':''}" data-a="day" data-d="${iso}">${d}<div class="dots">${e.r?'<i style="background:var(--red)"></i>':''}${e.o?'<i style="background:var(--amb)"></i>':''}${e.b?'<i style="background:var(--blu)"></i>':''}</div></div>`}
  return `<div class="card"><div class="row" style="margin-bottom:6px"><button class="btn sec sm" data-a="calp">‹</button><b>${MESES[m]} ${y}</b><button class="btn sec sm" data-a="caln">›</button></div><div class="cal">${c}</div>
  <div class="mut" style="margin-top:6px"><span style="color:var(--red)">●</span> turno pendiente &nbsp;<span style="color:var(--amb)">●</span> vencimiento &nbsp;<span style="color:var(--blu)">●</span> realizado</div></div>${ui.sel?`<h2>${fmtD(ui.sel)}</h2>${dayItems(ui.sel)}`:''}`}
+const PAL=['#38bdf8','#34d399','#fb923c','#a5b4fc','#f472b6','#facc15','#2dd4bf','#f87171','#c084fc','#94a3b8'];
+function hudBox(tag,right,body){return `<div class="hud" style="margin-bottom:10px"><div class="hh"><span>${tag}</span><span>${right}</span></div><div class="hb">${body}</div></div>`}
+function donutBox(tag,right,cats,tot){if(!cats.length||!tot)return hudBox(tag,right,'<span class="mut">Sin datos en el período.</span>');
+ const R=52,C=2*Math.PI*R;let off=0;const arcs=cats.map(([k,v],i)=>{const l=v/tot*C,a=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${PAL[i%PAL.length]}" stroke-width="18" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=l;return a}).join('');
+ return hudBox(tag,right,`<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center"><svg viewBox="0 0 140 140" width="150" height="150"><circle r="${R}" cx="70" cy="70" fill="none" stroke="#0a2552" stroke-width="18"/>${arcs}<text x="70" y="68" text-anchor="middle" fill="#e6f1ff" style="font:800 13px ui-monospace,Consolas,monospace">${money(tot)}</text><text x="70" y="84" text-anchor="middle" fill="#8fb0d8" style="font:600 8px ui-monospace,Consolas,monospace;letter-spacing:.1em">TOTAL</text></svg><div style="flex:1;min-width:140px;font-size:12px">${cats.map(([k,v],i)=>`<div class="row" style="flex-wrap:nowrap;margin:3px 0"><span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${PAL[i%PAL.length]};margin-right:6px"></i>${esc(k)}</span><span style="font-family:var(--mono)">${Math.round(v/tot*100)}%</span></div>`).join('')}</div></div>`)}
+function unitBars(tag,right,per){const by={};allCosts().filter(x=>inPeriod(x.fecha,per)).forEach(x=>by[x.vid]=(by[x.vid]||0)+x.monto);
+ const r=Object.entries(by).map(([id,t])=>[V(id),t]).filter(x=>x[0]).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...r.map(x=>x[1]));
+ return hudBox(tag,right,r.map(([v,t])=>`<div class="row" style="flex-wrap:nowrap;margin:4px 0"><span style="width:96px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(vname(v))}</span><div class="bar" style="flex:1"><i style="width:${t/mx*100}%"></i></div><span style="width:88px;text-align:right;font-size:12px;font-family:var(--mono)">${money(t)}</span></div>`).join('')||'<span class="mut">Sin datos en el período.</span>')}
+function catsOf(per){const by={};allCosts().filter(x=>inPeriod(x.fecha,per)).forEach(x=>by[x.cat]=(by[x.cat]||0)+x.monto);const c=Object.entries(by).sort((a,b)=>b[1]-a[1]);return[c,c.reduce((a,x)=>a+x[1],0)]}
 function monthBars(){const n=new Date(),all=allCosts(),r=[];for(let i=5;i>=0;i--){const d=new Date(n.getFullYear(),n.getMonth()-i,1);const t=all.filter(x=>{const f=parseD(x.fecha);return f.getFullYear()===d.getFullYear()&&f.getMonth()===d.getMonth()}).reduce((a,x)=>a+x.monto,0);r.push([MESES[d.getMonth()].slice(0,3),t])}
- const mx=Math.max(1,...r.map(x=>x[1]));return `<div class="card">${r.map(([l,t])=>`<div class="row" style="flex-wrap:nowrap;margin:4px 0"><span class="mut" style="width:34px">${l}</span><div class="bar" style="flex:1"><i style="width:${t/mx*100}%"></i></div><span style="width:92px;text-align:right;font-size:13px">${money(t)}</span></div>`).join('')}</div>`}
+ const mx=Math.max(1,...r.map(x=>x[1]));return `<div class="hud"><div class="hh"><span>DATA 01 · COSTOS</span><span>6 MESES</span></div><div class="hb">${r.map(([l,t])=>`<div class="row" style="flex-wrap:nowrap;margin:4px 0"><span class="mut" style="width:34px">${l}</span><div class="bar" style="flex:1"><i style="width:${t/mx*100}%"></i></div><span style="width:92px;text-align:right;font-size:13px">${money(t)}</span></div>`).join('')}</div></div>`}
 function inicioView(){if(!db.vehicles.length)return `<div class="mut" style="text-align:center;margin:6px">Unidades de la familia</div>`+emptyV();
  const al=alerts(),all=allCosts(),mes=all.filter(x=>inPeriod(x.fecha,'mes')).reduce((a,x)=>a+x.monto,0);
  return `<div class="mut" style="margin:0 2px 8px">Unidades de la familia</div><div class="kpis"><div class="kpi"><span class="mut">Móviles</span><b>${db.vehicles.length}</b></div><div class="kpi"><span class="mut">Turnos pendientes</span><b>${db.services.filter(s=>s.estado==='pendiente').length}</b></div><div class="kpi"><span class="mut">Alertas</span><b style="color:${al.length?'var(--amb)':'var(--grn)'}">${al.length}</b></div><div class="kpi"><span class="mut">Costos del mes</span><b>${money(mes)}</b></div></div>
  <div class="btns"><button class="btn sm" data-a="knew">Cargar kilómetros</button><button class="btn sm sec" data-a="snew">Nuevo servicio / reparación</button><button class="btn sm sec" data-a="enew">Nuevo gasto</button></div>
  <h2>Atención</h2>${al.length?al.map(a=>`<div class="card alert ${a.st} item" data-a="${a.sid?'sopen':'vopen'}" data-id="${a.sid||a.vid}">${esc(a.t)}</div>`).join(''):'<div class="card">Todo al día ✔</div>'}
- <h2>Calendario</h2>${calendar()}<h2>Costos últimos 6 meses</h2>${monthBars()}`}
+ <h2>Calendario</h2>${calendar()}<h2>Costos últimos 6 meses</h2>${monthBars()}${unitBars('DATA 02 · POR UNIDAD','AÑO','anio')}${(()=>{const[c,t]=catsOf('anio');return donutBox('DATA 03 · MIX','AÑO',c,t)})()}`}
 
 /* ============ Móviles ============ */
 function movilesView(){if(!db.vehicles.length)return emptyV();
@@ -260,7 +318,7 @@ function gastosView(){const all=allCosts().filter(x=>inPeriod(x.fecha,ui.gp)&&(!
  return `<div class="chips">${[['mes','Este mes'],['3m','3 meses'],['anio','Este año'],['todo','Todo']].map(([k,l])=>`<button class="${ui.gp===k?'on':''}" data-a="gp" data-k="${k}">${l}</button>`).join('')}</div>
  <label>Móvil<select data-a="gvsel"><option value="">Toda la flota</option>${vopts().map(([a,b])=>`<option value="${a}" ${ui.gv===a?'selected':''}>${esc(b)}</option>`).join('')}</select></label>
  <div class="kpis"><div class="kpi"><span class="mut">Total</span><b>${money(tot)}</b></div><div class="kpi"><span class="mut">Repuestos</span><b>${money(by['Repuestos']||0)}</b></div><div class="kpi"><span class="mut">Servicios / mano de obra</span><b>${money(by['Servicios']||0)}</b></div><div class="kpi"><span class="mut">Combustible</span><b>${money(by['Combustible']||0)}</b></div></div>
- <h2>Por categoría</h2><div class="card">${cats.map(([k,v])=>`<div class="row" style="flex-wrap:nowrap;margin:4px 0"><span style="width:120px;font-size:13px">${esc(k)}</span><div class="bar" style="flex:1"><i style="width:${v/(tot||1)*100}%"></i></div><span style="width:92px;text-align:right;font-size:13px">${money(v)}</span></div>`).join('')||'<span class="mut">Sin datos en el período.</span>'}</div>
+ <h2>Por categoría</h2>${donutBox('DATA 03 · MIX',({mes:'MES','3m':'3 MESES',anio:'AÑO',todo:'TODO'})[ui.gp]||'',cats,tot)}${hudBox('DATA 01 · CATEGORÍAS','$',cats.map(([k,v])=>`<div class="row" style="flex-wrap:nowrap;margin:4px 0"><span style="width:110px;font-size:12px">${esc(k)}</span><div class="bar" style="flex:1"><i style="width:${v/(tot||1)*100}%"></i></div><span style="width:88px;text-align:right;font-size:12px;font-family:var(--mono)">${money(v)}</span></div>`).join('')||'<span class="mut">Sin datos en el período.</span>')}${ui.gv?'':unitBars('DATA 02 · POR UNIDAD',({mes:'MES','3m':'3 MESES',anio:'AÑO',todo:'TODO'})[ui.gp]||'',ui.gp)}
  <h2>Consumo de repuestos</h2>${pl.length?`<table class="tbl"><tr><th>Repuesto</th><th>Cant.</th><th>Total</th></tr>${pl.map(p=>`<tr><td>${esc(p.n)}</td><td>${nf(p.c)}</td><td>${money(p.t)}</td></tr>`).join('')}</table>`:'<div class="mut">Sin repuestos cargados en el período.</div>'}
  <h2>Servicios por tipo</h2>${Object.keys(bySv).length?`<table class="tbl"><tr><th>Tipo</th><th>Total</th></tr>${Object.entries(bySv).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${money(v)}</td></tr>`).join('')}</table>`:'<div class="mut">Sin servicios en el período.</div>'}
  <h2>Movimientos</h2>${rows.map(x=>`<div class="card item row" data-a="${x.src==='s'?'sopen':'eedit'}" data-id="${x.id}"><span>${fmtD(x.fecha)} · ${esc(x.cat)}<br><span class="mut">${esc(vname(V(x.vid)))}${x.nota?' · '+esc(x.nota):''}</span></span><b>${money(x.monto)}</b></div>`).join('')||'<div class="mut">Sin movimientos.</div>'}<button class="fab" data-a="enew">+</button>`}
@@ -446,7 +504,7 @@ function importQr(snap){if(!IS_ADMIN)return;const o=snap.val();if(!o)return;let 
   db.expenses.push({id:gid,vid,fecha:g.fecha,cat:g.cat,monto:+g.monto||0,litros:g.litros?+g.litros:'',km:g.km?+g.km:'',nota:[g.nota,g.quien&&'('+g.quien+')'].filter(Boolean).join(' '),qr:true});if(g.km)bumpKm(v,g.km);n++})});
  if(n){save();render();toast(n+' gasto(s) cargado(s) desde el QR')}
  Object.keys(o).forEach(vid=>Object.keys(o[vid]||{}).forEach(gid=>{if(db.expenses.some(e=>e.id===gid)&&qrRef)qrRef.child(vid).child(gid).remove()}))}
-function setAdmin(u){const a=!!(u&&!u.isAnonymous&&u.email===ADMIN_EMAIL),ch=a!==IS_ADMIN;IS_ADMIN=a;$('#adm').textContent=a?'🔓':'🔒';qrWatch(a);if(ch){render();if(a&&fbRef)fbRef.once('value').then(fbHandle)}}
+function setAdmin(u){const a=!!(u&&!u.isAnonymous&&u.email===ADMIN_EMAIL),ch=a!==IS_ADMIN;IS_ADMIN=a;$('#adm').textContent=a?'🔓':'🔒';$('#subt').textContent='Unidades de la familia · '+(a?'Admin':'Lectura');qrWatch(a);if(ch){render();if(a&&fbRef)fbRef.once('value').then(fbHandle)}}
 function fbHandle(snap){const r=snap.val();
  if(!r){if(IS_ADMIN)syncPush(true);setSync('ok');return}
  if((r.updated||0)>db.updated){db.vehicles=arr(r.vehicles);db.services=arr(r.services);db.expenses=arr(r.expenses);db.kmlog=arr(r.kmlog);if(r.checklists)db.settings.checklists=r.checklists;db.updated=r.updated;db=norm(db);localStorage.setItem(KEY,JSON.stringify(db));render();pubInit()}
