@@ -412,7 +412,7 @@ async function fbStart(){const cfg=db.settings.fb;if(!cfg)return;
    else if((r.updated||0)<db.updated)syncPush(true);setSync('ok')},e=>setSync('error: '+e.message))}
  catch(e){setSync('error: '+e.message)}}
 function pubPush(vid,photos){if(!fbRef)return;const v=V(vid);if(!v)return;const ref=firebase.database().ref('publico/'+vid);ref.child('r').set(JSON.parse(JSON.stringify(snapshot(v)))).catch(e=>setSync('error: '+e.message));if(photos)ref.child('fotos').set(PH[vid]&&PH[vid].length?PH[vid]:null)}
-async function pubInit(){for(const v of db.vehicles){try{const ref=firebase.database().ref('publico/'+v.id+'/fotos'),s=await ref.once('value'),rem=s.val();
+async function pubInit(){db.vehicles.forEach(v=>pubPush(v.id));for(const v of db.vehicles){try{const ref=firebase.database().ref('publico/'+v.id+'/fotos'),s=await ref.once('value'),rem=s.val();
   if(rem&&!(PH[v.id]||[]).length){PH[v.id]=arr(rem);phSave(v.id);render()}else if(!rem&&(PH[v.id]||[]).length)ref.set(PH[v.id])}catch(e){}}}
 function syncPush(now){if(!fbRef)return;clearTimeout(fbT);fbT=setTimeout(()=>{fbRef.set(JSON.parse(JSON.stringify({vehicles:db.vehicles,services:db.services,expenses:db.expenses,kmlog:db.kmlog,checklists:db.settings.checklists,updated:db.updated}))).then(()=>{setSync('ok');db.vehicles.forEach(v=>pubPush(v.id))}).catch(e=>setSync('error: '+e.message))},now?0:700)}
 
@@ -422,7 +422,10 @@ function showViewer(){let r;try{r=b64d(location.hash.slice(3))}catch(e){document
  $('#app').style.display='none';$('#modal').style.display='none';$('#viewer').innerHTML=reportHTML(r,window._vf)}
 
 async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('#app').style.display='none';$('#modal').style.display='none';const out=h=>$('#viewer').innerHTML=h;out('<p style="padding:20px">Cargando reporte…</p>');
- try{const base=b64d(m[2]),d=await (await fetch(base+'/publico/'+encodeURIComponent(m[1])+'.json')).json();if(!d||!d.r)throw 0;out(reportHTML(d.r,arr(d.fotos)))}catch(e){out('<p style="padding:20px">No se pudo cargar el reporte de esta unidad.</p>')}}
+ let d;try{d=await (await fetch(b64d(m[2])+'/publico/'+encodeURIComponent(m[1])+'.json')).json()}catch(e){return out('<p style="padding:20px">No se pudo conectar. Revisá tu conexión a internet e intentá de nuevo.</p>')}
+ if(d&&d.error)return out('<p style="padding:20px">Firebase rechazó la lectura ('+esc(d.error)+'). Falta publicar la regla de lectura pública “publico” en Realtime Database → Reglas.</p>');
+ if(!d||!d.r)return out('<p style="padding:20px">Esta unidad todavía no está publicada. Abrí la app SCHVARTZ en el dispositivo donde está cargada y esperá a que diga “sincronizado”.</p>');
+ out(reportHTML(d.r,arr(d.fotos)))}
 /* ============ Arranque ============ */
 function start(){render();fbStart()}
 async function boot(){if(location.hash.startsWith('#v=')){showLive();return}if(location.hash.startsWith('#r=')){await phLoad();showViewer();return}await phLoad();
