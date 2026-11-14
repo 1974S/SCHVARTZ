@@ -300,7 +300,7 @@ const qrUrl=v=>{const b=dbBase();return b?baseUrl()+'#v='+v.id+'&f='+b64e(b):bas
 function qrSvg(t){const q=qrcode(0,'L');q.addData(t);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}
 function reportHTML(r,fotos){const v={...r,venc:r.venc.map(([tipo,fecha])=>({tipo,fecha}))},pm=pmCalc(v);
  const T=rows=>`<table class="tbl">${rows.map(([k,x])=>`<tr><th style="width:38%">${esc(k)}</th><td>${esc(x)}</td></tr>`).join('')}</table>`;
- return `<div class="rep"><div class="rot"><b>SCHVARTZ</b><br>Unidades de la familia</div><h1>Reporte de unidad</h1><h4>${esc(vname(r))}</h4><p class="c">${esc(r.patente||'')}</p>${fotos&&fotos.length?'<div class="gal">'+fotos.map(f=>`<img src="${f}" onclick="this.classList.toggle('big')">`).join('')+'</div>':''}
+ return `<div class="rep"><div class="rot"><b>SCHVARTZ</b><br>Unidades de la familia</div><h1>Reporte de unidad</h1><h4>${esc(vname(r))}</h4><p class="c">${esc(r.patente||'')}</p>${fotos==='live'?'<div class="gal" id="galv"></div>':fotos&&fotos.length?'<div class="gal">'+fotos.map(f=>`<img src="${f}" onclick="this.classList.toggle('big')">`).join('')+'</div>':''}
  <h5>1. Datos del móvil</h5>${T([['Móvil',vname(r)],['Patente',r.patente||'—'],['Marca / modelo',[r.marca,r.modelo].filter(Boolean).join(' ')||'—'],['Año',r.anio||'—'],['Tipo / combustible',[r.tipo,r.comb].filter(Boolean).join(' · ')||'—'],['Kilometraje',nf(r.km)+' km'+(r.kmFecha?' ('+fmtD(r.kmFecha)+')':'')]])}
  <h5>2. Vencimientos</h5>${v.venc.length?`<table class="tbl"><tr><th>Documento</th><th>Vence</th><th>Estado</th></tr>${v.venc.map(e=>`<tr><td>${esc(e.tipo)}</td><td>${fmtD(e.fecha)}</td><td>${stTxt[vencState(e.fecha)]}</td></tr>`).join('')}</table>`:'<p>Sin vencimientos cargados.</p>'}
  <h5>3. Mantenimiento preventivo</h5>${T([['Intervalo',(+r.pmKm?nf(r.pmKm)+' km':'—')+' / '+(+r.pmMeses?r.pmMeses+' meses':'—')],['Último service',(r.lastPmKm!==''&&r.lastPmKm!=null?nf(r.lastPmKm)+' km':'—')+(r.lastPmFecha?' · '+fmtD(r.lastPmFecha):'')],['Próximo service',[pm.nextKm!=null?nf(pm.nextKm)+' km':'',pm.nextDate?fmtD(pm.nextDate):''].filter(Boolean).join(' · ')||'—'],['Estado',stTxt[pm.state]]])}
@@ -421,11 +421,15 @@ function showViewer(){let r;try{r=b64d(location.hash.slice(3))}catch(e){document
  try{const loc=norm(JSON.parse(localStorage.getItem(KEY)));const v=loc.vehicles.find(x=>x.id===r.id);if(v){db=loc;r=snapshot(v);window._vf=PH[v.id]}}catch(e){}
  $('#app').style.display='none';$('#modal').style.display='none';$('#viewer').innerHTML=reportHTML(r,window._vf)}
 
-async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('#app').style.display='none';$('#modal').style.display='none';const out=h=>$('#viewer').innerHTML=h;out('<p style="padding:20px">Cargando reporte…</p>');
- let d;try{d=await (await fetch(b64d(m[2])+'/publico/'+encodeURIComponent(m[1])+'.json')).json()}catch(e){return out('<p style="padding:20px">No se pudo conectar. Revisá tu conexión a internet e intentá de nuevo.</p>')}
- if(d&&d.error)return out('<p style="padding:20px">Firebase rechazó la lectura ('+esc(d.error)+'). Falta publicar la regla de lectura pública “publico” en Realtime Database → Reglas.</p>');
- if(!d||!d.r)return out('<p style="padding:20px">Esta unidad todavía no está publicada. Abrí la app SCHVARTZ en el dispositivo donde está cargada y esperá a que diga “sincronizado”.</p>');
- out(reportHTML(d.r,arr(d.fotos)))}
+async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('#app').style.display='none';$('#modal').style.display='none';const out=h=>$('#viewer').innerHTML=h,msg=t=>out('<p style="padding:20px">'+t+'</p>');out('<p style="padding:20px">Cargando reporte…</p>');
+ if(!m)return msg('El enlace del QR está incompleto. Volvé a escanearlo o generá el QR de nuevo desde la app.');
+ let base,id=encodeURIComponent(m[1]);try{base=b64d(m[2])}catch(e){return msg('El enlace del QR no es válido. Generá el QR de nuevo desde la app.')}
+ const get=async(path,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{return await (await fetch(base+'/publico/'+id+path+'.json',{signal:c.signal})).json()}finally{clearTimeout(t)}};
+ let r;try{r=await get('/r',20000)}catch(e){return msg('No se pudo conectar con la base de datos (sin internet o demasiado lento). Intentá de nuevo.')}
+ if(r&&r.error)return msg('Firebase rechazó la lectura ('+esc(r.error)+'). Falta publicar la regla de lectura pública “publico” en Realtime Database → Reglas.');
+ if(!r)return msg('Esta unidad todavía no está publicada. Abrí la app SCHVARTZ en el dispositivo donde está cargada y esperá a que diga “sincronizado”.');
+ out(reportHTML(r,'live'));
+ for(let i=0;i<4;i++){try{const f=await get('/fotos/'+i,30000);if(typeof f==='string'&&f.startsWith('data:image')){const im=new Image();im.src=f;im.onclick=()=>im.classList.toggle('big');$('#galv').appendChild(im)}else if(!f)break}catch(e){break}}}
 /* ============ Arranque ============ */
 function start(){render();fbStart()}
 async function boot(){if(location.hash.startsWith('#v=')){showLive();return}if(location.hash.startsWith('#r=')){await phLoad();showViewer();return}await phLoad();
