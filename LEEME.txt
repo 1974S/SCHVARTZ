@@ -11,3 +11,8 @@ FIREBASE (opcional, para ver fotos al escanear el QR y sincronizar celular/PC):
 - Reglas de la base:
   {"rules":{".read":"auth != null",".write":"auth != null","publico":{".read":true}}}
 - En la app: Ajustes > Sincronización > pegar firebaseConfig > Conectar.
+
+--- v8: GASTOS DESDE EL QR ---
+Reglas nuevas (Realtime Database > Reglas): pegar el contenido de REGLAS.json y Publicar.
+Cualquiera que escanee el QR puede cargar gastos de esa unidad (sin contraseña). Esos gastos
+llegan a la app cuando el administrador la abre (🔓) y se suman a Costos.

@@ -294,7 +294,8 @@ function eform(vid,e){e=e||{};if(!db.vehicles.length)return toast('Primero agreg
  <div class="btns"><button class="btn" data-a="esave">Guardar</button>${e.id?'<button class="btn del" data-a="edel">Eliminar</button>':''}<button class="btn sec" data-a="close">Cancelar</button></div>`)}
 
 /* ============ Reporte y QR ============ */
-function snapshot(v){return{id:v.id,alias:v.alias,marca:v.marca,modelo:v.modelo,anio:v.anio,patente:v.patente,tipo:v.tipo,comb:v.comb,km:v.km,kmFecha:v.kmFecha,pmKm:v.pmKm,pmMeses:v.pmMeses,lastPmKm:v.lastPmKm,lastPmFecha:v.lastPmFecha,
+function snapshot(v,full){const o=snapshotBase(v);if(full){const al=allCosts().filter(x=>x.vid===v.id).sort((a,b)=>b.fecha.localeCompare(a.fecha)),mk=today().slice(0,7),yk=today().slice(0,4);o.gs=al.slice(0,15).map(x=>[x.fecha,x.cat,Math.round(x.monto),(x.nota||'').slice(0,40)]);o.gm=mk;o.gy=yk;o.gt=[Math.round(al.filter(x=>x.fecha.startsWith(mk)).reduce((a,x)=>a+x.monto,0)),Math.round(al.filter(x=>x.fecha.startsWith(yk)).reduce((a,x)=>a+x.monto,0))]}return o}
+function snapshotBase(v){return{id:v.id,alias:v.alias,marca:v.marca,modelo:v.modelo,anio:v.anio,patente:v.patente,tipo:v.tipo,comb:v.comb,km:v.km,kmFecha:v.kmFecha,pmKm:v.pmKm,pmMeses:v.pmMeses,lastPmKm:v.lastPmKm,lastPmFecha:v.lastPmFecha,
  venc:v.venc.map(e=>[e.tipo,e.fecha]),s:db.services.filter(s=>s.vid===v.id&&s.estado==='cumplido').sort((a,b)=>(b.fechaReal||b.fecha).localeCompare(a.fechaReal||a.fecha)).slice(0,4).map(s=>[s.fechaReal||s.fecha,s.tipo,s.km||'',(s.desc||'').slice(0,40)]),g:Date.now()}}
 const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const b64d=s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))));
@@ -302,6 +303,29 @@ const baseUrl=()=>location.origin+location.pathname;
 const dbBase=()=>((db.settings.fb&&db.settings.fb.databaseURL)||'').replace(/\/$/,'');
 const qrUrl=v=>{const b=dbBase();return b?baseUrl()+'#v='+v.id+'&f='+b64e(b):baseUrl()+'#r='+b64e(snapshot(v))};
 function qrSvg(t){const q=qrcode(0,'L');q.addData(t);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}
+function gastosHTML(r,pend){pend=pend||[];
+ const rows=arr(r.gs).map(x=>({f:x[0],c:x[1],m:+x[2]||0,n:x[3]||''})).concat(pend.map(p=>({f:p.fecha,c:p.cat,m:+p.monto,n:(p.nota||'')+' (nuevo)'}))).sort((a,b)=>b.f.localeCompare(a.f)).slice(0,15);
+ let tm=+(arr(r.gt)[0]||0),ty=+(arr(r.gt)[1]||0);pend.forEach(p=>{if(r.gm&&p.fecha.startsWith(r.gm))tm+=+p.monto;if(r.gy&&p.fecha.startsWith(r.gy))ty+=+p.monto});
+ if(!r.gm&&!rows.length)return '';
+ return `<h5>5. Gastos</h5><table class="tbl"><tr><th>Mes en curso</th><td>${money(tm)}</td><th>Año en curso</th><td>${money(ty)}</td></tr></table>${rows.length?`<table class="tbl" style="margin-top:6px"><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Monto</th></tr>${rows.map(x=>`<tr><td>${fmtD(x.f)}</td><td>${esc(x.c)}</td><td>${esc(x.n)}</td><td>${money(x.m)}</td></tr>`).join('')}</table>`:'<p>Sin gastos registrados.</p>'}`}
+function gformHTML(){const st='width:100%;padding:9px;margin:3px 0 8px;border:1px solid #888;border-radius:8px;font:inherit;background:#fff;color:#000',lb='display:block;color:#333;font-size:12px';
+ return `<div class="rep" style="margin-top:4px;border-top:2px solid #0f766e"><h5>Cargar un gasto de esta unidad</h5>
+ <label style="${lb}">Fecha<input id="gf_f" type="date" value="${today()}" style="${st}"></label>
+ <label style="${lb}">Categoría<select id="gf_c" style="${st}">${['Combustible','Repuestos','Lavado','Peaje','Estacionamiento','Seguro','Multa','Otro'].map(c=>`<option>${c}</option>`).join('')}</select></label>
+ <label style="${lb}">Monto $<input id="gf_m" type="number" inputmode="decimal" step="any" style="${st}"></label>
+ <label style="${lb}">Litros (combustible, opcional)<input id="gf_l" type="number" inputmode="decimal" step="any" style="${st}"></label>
+ <label style="${lb}">Kilometraje (opcional)<input id="gf_k" type="number" inputmode="numeric" style="${st}"></label>
+ <label style="${lb}">Detalle (opcional)<input id="gf_n" maxlength="100" style="${st}"></label>
+ <label style="${lb}">Tu nombre (opcional)<input id="gf_q" maxlength="40" style="${st}"></label>
+ <button id="gf_b" style="background:#0f766e;color:#fff;border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:600;width:100%">Cargar gasto</button><div id="gf_msg" style="margin-top:8px;font-size:13px"></div></div>`}
+async function sendGasto(base,id,pend,r){const g=k=>$('#gf_'+k).value.trim(),msg=(t,ok)=>{const e=$('#gf_msg');e.style.color=ok?'#0a7a2f':'#b00020';e.textContent=t};
+ const monto=+g('m');if(!g('f')||!(monto>0))return msg('Completá la fecha y un monto mayor a cero.');
+ const o={fecha:g('f'),cat:g('c'),monto,t:Date.now()};if(+g('l')>0)o.litros=+g('l');if(+g('k')>0)o.km=+g('k');if(g('n'))o.nota=g('n').slice(0,100);if(g('q'))o.quien=g('q').slice(0,40);
+ $('#gf_b').disabled=true;
+ try{const d=await (await fetch(base+'/gastos_qr/'+id+'.json',{method:'POST',body:JSON.stringify(o)})).json();if(!d||d.error||!d.name)throw new Error(d&&d.error||'sin respuesta');
+  pend.push(o);$('#gbox').innerHTML=gastosHTML(r,pend);['m','l','k','n'].forEach(k=>$('#gf_'+k).value='');msg('Gasto cargado ✔',true)}
+ catch(e){msg('No se pudo cargar el gasto ('+(e.message||'error')+'). Avisá al administrador.')}
+ $('#gf_b').disabled=false}
 function reportHTML(r,fotos){const SV=arr(r.s),v={...r,venc:arr(r.venc).map(([tipo,fecha])=>({tipo,fecha}))},pm=pmCalc(v);
  const T=rows=>`<table class="tbl">${rows.map(([k,x])=>`<tr><th style="width:38%">${esc(k)}</th><td>${esc(x)}</td></tr>`).join('')}</table>`;
  return `<div class="rep"><div class="rot"><b>SCHVARTZ</b><br>Unidades de la familia</div><h1>Reporte de unidad</h1><h4>${esc(vname(r))}</h4><p class="c">${esc(r.patente||'')}</p>${fotos==='live'?'<div class="gal" id="galv"></div>':fotos&&fotos.length?'<div class="gal">'+fotos.map(f=>`<img src="${f}" onclick="this.classList.toggle('big')">`).join('')+'</div>':''}
@@ -309,6 +333,7 @@ function reportHTML(r,fotos){const SV=arr(r.s),v={...r,venc:arr(r.venc).map(([ti
  <h5>2. Vencimientos</h5>${v.venc.length?`<table class="tbl"><tr><th>Documento</th><th>Vence</th><th>Estado</th></tr>${v.venc.map(e=>`<tr><td>${esc(e.tipo)}</td><td>${fmtD(e.fecha)}</td><td>${stTxt[vencState(e.fecha)]}</td></tr>`).join('')}</table>`:'<p>Sin vencimientos cargados.</p>'}
  <h5>3. Mantenimiento preventivo</h5>${T([['Intervalo',(+r.pmKm?nf(r.pmKm)+' km':'—')+' / '+(+r.pmMeses?r.pmMeses+' meses':'—')],['Último service',(r.lastPmKm!==''&&r.lastPmKm!=null?nf(r.lastPmKm)+' km':'—')+(r.lastPmFecha?' · '+fmtD(r.lastPmFecha):'')],['Próximo service',[pm.nextKm!=null?nf(pm.nextKm)+' km':'',pm.nextDate?fmtD(pm.nextDate):''].filter(Boolean).join(' · ')||'—'],['Estado',stTxt[pm.state]]])}
  <h5>4. Últimos servicios</h5>${SV.length?`<table class="tbl"><tr><th>Fecha</th><th>Tipo</th><th>Km</th><th>Detalle</th></tr>${SV.map(s=>`<tr><td>${fmtD(s[0])}</td><td>${esc(s[1])}</td><td>${nf(s[2])}</td><td>${esc(s[3])}</td></tr>`).join('')}</table>`:'<p>Sin servicios registrados.</p>'}
+ <div id="gbox">${gastosHTML(r,[])}</div>
  <p style="font-size:11px;color:#555;margin-top:14px">Datos al ${new Date(r.g).toLocaleString('es-AR')} · Reporte de solo lectura.</p></div>`}
 function printHTML(h){$('#printArea').innerHTML=h;document.body.classList.add('printing');setTimeout(()=>{window.print()},100)}
 window.addEventListener('afterprint',()=>document.body.classList.remove('printing'));
@@ -361,8 +386,8 @@ const A={
  fotoadd:d=>{window._fv=d.id;const f=$('#fimg');f.value='';f.click()},
  fotoview:d=>modal(`<img src="${PH[d.id][+d.i]}" style="width:100%;border-radius:8px"><div class="btns"><button class="btn del" data-a="fotodel" data-id="${d.id}" data-i="${d.i}">Eliminar foto</button><button class="btn sec" data-a="close">Cerrar</button></div>`),
  fotodel:d=>{PH[d.id].splice(+d.i,1);phSave(d.id);pubPush(d.id,true);closeModal();render()},
- report:d=>{modal(`<div style="overflow:auto">${reportHTML(snapshot(V(d.id)),PH[d.id])}</div><div class="btns"><button class="btn" data-a="repprint" data-id="${d.id}">Imprimir / PDF</button><button class="btn sec" data-a="close">Cerrar</button></div>`)},
- repprint:d=>printHTML(reportHTML(snapshot(V(d.id)),PH[d.id])),
+ report:d=>{modal(`<div style="overflow:auto">${reportHTML(snapshot(V(d.id),true),PH[d.id])}</div><div class="btns"><button class="btn" data-a="repprint" data-id="${d.id}">Imprimir / PDF</button><button class="btn sec" data-a="close">Cerrar</button></div>`)},
+ repprint:d=>printHTML(reportHTML(snapshot(V(d.id),true),PH[d.id])),
  /* ajustes */
  setpin:async()=>{const p=$('#pin1').value.trim();if(p.length<4)return toast('Mínimo 4 dígitos');db.settings.pin=await sha(p);save(false);sessionStorage.setItem('mm_unl','1');render();toast('PIN activado')},
  clrpin:()=>{delete db.settings.pin;save(false);render();toast('PIN desactivado')},
@@ -414,7 +439,14 @@ function showLock(){const l=document.createElement('div');l.className='lock';l.i
 let fbRef=null,fbT=null;
 const setSync=(s)=>{window._sync=s;$('#sync').textContent=s==='ok'?'● sync':s?'● sin sync':'';if(!ui.vid&&ui.tab==='ajustes'&&!$('#modal').classList.contains('on'))render()};
 function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('No se pudo cargar Firebase'));document.head.appendChild(s)})}
-function setAdmin(u){const a=!!(u&&!u.isAnonymous&&u.email===ADMIN_EMAIL),ch=a!==IS_ADMIN;IS_ADMIN=a;$('#adm').textContent=a?'🔓':'🔒';if(ch){render();if(a&&fbRef)fbRef.once('value').then(fbHandle)}}
+let qrRef=null;
+function qrWatch(on){if(!window.firebase)return;if(on&&!qrRef){qrRef=firebase.database().ref('gastos_qr');qrRef.on('value',importQr)}else if(!on&&qrRef){qrRef.off();qrRef=null}}
+function importQr(snap){if(!IS_ADMIN)return;const o=snap.val();if(!o)return;let n=0;
+ Object.keys(o).forEach(vid=>{const v=V(vid);if(!v)return;Object.keys(o[vid]||{}).forEach(gid=>{const g=o[vid][gid];if(!g||db.expenses.some(e=>e.id===gid))return;
+  db.expenses.push({id:gid,vid,fecha:g.fecha,cat:g.cat,monto:+g.monto||0,litros:g.litros?+g.litros:'',km:g.km?+g.km:'',nota:[g.nota,g.quien&&'('+g.quien+')'].filter(Boolean).join(' '),qr:true});if(g.km)bumpKm(v,g.km);n++})});
+ if(n){save();render();toast(n+' gasto(s) cargado(s) desde el QR')}
+ Object.keys(o).forEach(vid=>Object.keys(o[vid]||{}).forEach(gid=>{if(db.expenses.some(e=>e.id===gid)&&qrRef)qrRef.child(vid).child(gid).remove()}))}
+function setAdmin(u){const a=!!(u&&!u.isAnonymous&&u.email===ADMIN_EMAIL),ch=a!==IS_ADMIN;IS_ADMIN=a;$('#adm').textContent=a?'🔓':'🔒';qrWatch(a);if(ch){render();if(a&&fbRef)fbRef.once('value').then(fbHandle)}}
 function fbHandle(snap){const r=snap.val();
  if(!r){if(IS_ADMIN)syncPush(true);setSync('ok');return}
  if((r.updated||0)>db.updated){db.vehicles=arr(r.vehicles);db.services=arr(r.services);db.expenses=arr(r.expenses);db.kmlog=arr(r.kmlog);if(r.checklists)db.settings.checklists=r.checklists;db.updated=r.updated;db=norm(db);localStorage.setItem(KEY,JSON.stringify(db));render();pubInit()}
@@ -428,7 +460,7 @@ async function fbStart(){const cfg=db.settings.fb;if(!cfg)return;
   fbRef=firebase.database().ref('mis_moviles');pubInit();
   fbRef.on('value',fbHandle,e=>setSync('error: '+e.message))}
  catch(e){setSync('error: '+e.message)}}
-function pubPush(vid,photos){if(!fbRef||!IS_ADMIN)return;const v=V(vid);if(!v)return;const ref=firebase.database().ref('publico/'+vid);ref.child('r').set(JSON.parse(JSON.stringify(snapshot(v)))).catch(e=>setSync('error: '+e.message));if(photos)ref.child('fotos').set(PH[vid]&&PH[vid].length?PH[vid]:null)}
+function pubPush(vid,photos){if(!fbRef||!IS_ADMIN)return;const v=V(vid);if(!v)return;const ref=firebase.database().ref('publico/'+vid);ref.child('r').set(JSON.parse(JSON.stringify(snapshot(v,true)))).catch(e=>setSync('error: '+e.message));if(photos)ref.child('fotos').set(PH[vid]&&PH[vid].length?PH[vid]:null)}
 async function pubInit(){db.vehicles.forEach(v=>pubPush(v.id));for(const v of db.vehicles){try{const ref=firebase.database().ref('publico/'+v.id+'/fotos'),s=await ref.once('value'),rem=s.val();
   if(rem&&!(PH[v.id]||[]).length){PH[v.id]=arr(rem);phSave(v.id);render()}else if(IS_ADMIN&&!rem&&(PH[v.id]||[]).length)ref.set(PH[v.id])}catch(e){}}}
 function syncPush(now){if(!fbRef||!IS_ADMIN)return;clearTimeout(fbT);fbT=setTimeout(()=>{fbRef.set(JSON.parse(JSON.stringify({vehicles:db.vehicles,services:db.services,expenses:db.expenses,kmlog:db.kmlog,checklists:db.settings.checklists,updated:db.updated}))).then(()=>{setSync('ok');db.vehicles.forEach(v=>pubPush(v.id))}).catch(e=>setSync('error: '+e.message))},now?0:700)}
@@ -446,6 +478,9 @@ async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('
  if(r&&r.error)return msg('Firebase rechazó la lectura ('+esc(r.error)+'). Falta publicar la regla de lectura pública “publico” en Realtime Database → Reglas.');
  if(!r)return msg('Esta unidad todavía no está publicada. Abrí la app SCHVARTZ en el dispositivo donde está cargada y esperá a que diga “sincronizado”.');
  try{out(reportHTML(r,'live'))}catch(e){return msg('No se pudo mostrar el reporte: '+esc(e.message))}
+ let pend=[];try{const q=await (await fetch(base+'/gastos_qr/'+id+'.json')).json();if(q&&!q.error)pend=Object.values(q)}catch(e){}
+ try{$('#gbox').innerHTML=gastosHTML(r,pend)}catch(e){}
+ $('#viewer').insertAdjacentHTML('beforeend',gformHTML());$('#gf_b').onclick=()=>sendGasto(base,id,pend,r);
  for(let i=0;i<4;i++){try{const f=await get('/fotos/'+i,30000);if(typeof f==='string'&&f.startsWith('data:image')){const im=new Image();im.src=f;im.onclick=()=>im.classList.toggle('big');$('#galv').appendChild(im)}else if(!f)break}catch(e){break}}}
 /* ============ Arranque ============ */
 function start(){render();fbStart()}

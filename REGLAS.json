@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null && auth.token.email === 'admin@schvartz.app'",
+    "publico": { ".read": true },
+    "gastos_qr": {
+      ".read": true,
+      "$vid": {
+        "$gid": {
+          ".write": "!data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['fecha','cat','monto']) && newData.child('monto').isNumber() && newData.child('monto').val() > 0 && newData.child('monto').val() < 100000000 && newData.child('fecha').isString() && newData.child('fecha').val().length == 10 && newData.child('cat').isString() && newData.child('cat').val().length < 30 && (!newData.child('nota').exists() || newData.child('nota').val().length <= 100) && (!newData.child('quien').exists() || newData.child('quien').val().length <= 40)"
+        }
+      }
+    }
+  }
+}
