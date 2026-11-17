@@ -155,6 +155,13 @@ select,input,textarea{background:#071d42;border-color:#1b55a3;color:var(--tx)}
 .rep .gform textarea{width:100%;padding:10px;margin:8px 0 4px;border:1px solid #1b55a3;border-radius:8px;font:inherit;background:#071d42;color:var(--tx)}
 button.rec{animation:recp 1s infinite;background:linear-gradient(180deg,#fb7185,#e11d48)!important;color:#fff!important}@keyframes recp{50%{box-shadow:0 0 22px #fb7185}}
 @media print{body.printing .rep{color:#000}body.printing .rep .top{background:#fff;border-bottom:1px solid #000}body.printing .rep .top span,body.printing .rep p{color:#444}body.printing .rep h1,body.printing .rep h5{color:#000}body.printing .rep h5::after{display:none}body.printing .rep p.c{background:#eee;color:#000;border-color:#999}body.printing .rep .tbl{background:#fff;border-color:#999}body.printing .rep .tbl th{background:#e5e5e5;color:#000}body.printing .rep .tbl td{color:#000;border-color:#bbb}body.printing .rep .kpi{background:#fff;border-color:#999}body.printing .rep .kpi b{color:#000;text-shadow:none}body.printing .rep .kpi .mut{color:#333}body.printing .rep .gform{display:none}}
+.wz .top{margin-bottom:6px}.wzp{height:6px;background:#0a2552;border-radius:6px;overflow:hidden;margin:8px 2px}.wzp i{display:block;height:100%;background:linear-gradient(90deg,#1597d6,#5eead4);box-shadow:0 0 10px #22c1f588;transition:width .25s}
+.wzn{font:600 11px var(--mono);letter-spacing:.14em;color:#6fb7ee;margin:6px 2px;text-transform:uppercase}.wz .wzq{font-size:22px;margin:6px 2px 14px;line-height:1.25}
+.wzo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.wz .opt{background:linear-gradient(160deg,rgba(18,64,132,.6),rgba(8,32,72,.8));border:1px solid #1b55a3;color:var(--tx);border-radius:12px;padding:14px 8px;font:600 15px system-ui;min-height:54px}.wz .opt.on,.wz .opt:active{border-color:#22c1f5;box-shadow:0 0 14px #22c1f566;background:#0f4a8a}
+.wz input,.wz textarea{width:100%;padding:13px;border:1px solid #1b55a3;border-radius:10px;font:inherit;font-size:16px;background:#071d42;color:var(--tx);margin:0 0 4px}
+.wzb{display:block;width:100%;margin-top:10px;background:linear-gradient(180deg,#38c8f8,#1597d6);color:#03162e;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 0 14px #22c1f544}.wzb.sec{background:#123e7e;color:#cfe6ff;border:1px solid #2a6fc2;box-shadow:none}
+.wzr2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wzr2 .wzb:only-child{grid-column:1/3}
+.wzs{border:1px solid #1b55a3;border-radius:10px;overflow:hidden;margin:8px 0}.wzr{display:grid;grid-template-columns:1fr 1.3fr auto;gap:8px;padding:10px 12px;border-bottom:1px solid #153f7a;font-size:14px;align-items:center;background:rgba(18,64,132,.35)}.wzr span{color:var(--mut)}.wzr u{color:#22c1f5;font-size:12px}
 @media print{html{background:#fff!important}body.printing{background:#fff!important}body.printing #app,body.printing .modal,body.printing nav,body.printing header,body.printing .fab{display:none!important}body.printing #printArea{display:block}body.printing{background:#fff}.qrs>div{break-inside:avoid}}
 </style>
 </head>
@@ -195,7 +202,7 @@ function norm(x){x=x||{};x.vehicles=arr(x.vehicles);x.services=arr(x.services);x
 let db=(()=>{try{return norm(JSON.parse(localStorage.getItem(KEY)))}catch(e){return norm({})}})();
 function save(touch=true){if(touch)db.updated=Date.now();localStorage.setItem(KEY,JSON.stringify(db));syncPush()}
 const ADMIN_EMAIL='admin@schvartz.app';let IS_ADMIN=false;
-const WRITE=new Set(['vnew','vedit','vsave','vdel','vencnew','vencedit','vencsave','vencdel','knew','kedit','ksave','kdel','snew','sedit','ssave','sdone','sdonesave','sreopen','sdel','chk','enew','eedit','esave','edel','fotoadd','fotodel','savecl','import','wipe','itadd','itdel']);
+const WRITE=new Set(['altalink','altaadd','altadel','altapegar','altapegarok','altawa','altaplantilla','vnew','vedit','vsave','vdel','vencnew','vencedit','vencsave','vencdel','knew','kedit','ksave','kdel','snew','sedit','ssave','sdone','sdonesave','sreopen','sdel','chk','enew','eedit','esave','edel','fotoadd','fotodel','savecl','import','wipe','itadd','itdel']);
 function strip(root){if(IS_ADMIN)return;root.querySelectorAll('[data-a]').forEach(e=>{const a=e.dataset.a;if(WRITE.has(a)){if(a==='chk'||e.classList.contains('item'))e.removeAttribute('data-a');else e.remove()}})}
 const ui={tab:'inicio',vid:null,cal:{y:new Date().getFullYear(),m:new Date().getMonth()},sel:null,tf:'pendiente',tv:'',gp:'mes',gv:''};
 const V=id=>db.vehicles.find(v=>v.id===id);
@@ -288,7 +295,7 @@ function unitBars(tag,right,per){const by={};allCosts().filter(x=>inPeriod(x.fec
 function catsOf(per){const by={};allCosts().filter(x=>inPeriod(x.fecha,per)).forEach(x=>by[x.cat]=(by[x.cat]||0)+x.monto);const c=Object.entries(by).sort((a,b)=>b[1]-a[1]);return[c,c.reduce((a,x)=>a+x[1],0)]}
 function monthBars(){const n=new Date(),all=allCosts(),r=[];for(let i=5;i>=0;i--){const d=new Date(n.getFullYear(),n.getMonth()-i,1);const t=all.filter(x=>{const f=parseD(x.fecha);return f.getFullYear()===d.getFullYear()&&f.getMonth()===d.getMonth()}).reduce((a,x)=>a+x.monto,0);r.push([MESES[d.getMonth()].slice(0,3),t])}
  const mx=Math.max(1,...r.map(x=>x[1]));return `<div class="hud"><div class="hh"><span>DATA 01 · COSTOS</span><span>6 MESES</span></div><div class="hb">${r.map(([l,t])=>`<div class="row" style="flex-wrap:nowrap;margin:4px 0"><span class="mut" style="width:34px">${l}</span><div class="bar" style="flex:1"><i style="width:${t/mx*100}%"></i></div><span style="width:92px;text-align:right;font-size:13px">${money(t)}</span></div>`).join('')}</div></div>`}
-function inicioView(){if(!db.vehicles.length)return `<div class="mut" style="text-align:center;margin:6px">Unidades de la familia</div>`+emptyV();
+function inicioView0(){if(!db.vehicles.length)return `<div class="mut" style="text-align:center;margin:6px">Unidades de la familia</div>`+emptyV();
  const al=alerts(),all=allCosts(),mes=all.filter(x=>inPeriod(x.fecha,'mes')).reduce((a,x)=>a+x.monto,0);
  return `<div class="mut" style="margin:0 2px 8px">Unidades de la familia</div><div class="kpis"><div class="kpi"><span class="mut">Móviles</span><b>${db.vehicles.length}</b></div><div class="kpi"><span class="mut">Turnos pendientes</span><b>${db.services.filter(s=>s.estado==='pendiente').length}</b></div><div class="kpi"><span class="mut">Alertas</span><b style="color:${al.length?'var(--amb)':'var(--grn)'}">${al.length}</b></div><div class="kpi"><span class="mut">Costos del mes</span><b>${money(mes)}</b></div></div>
  <div class="btns"><button class="btn sm" data-a="knew">Cargar kilómetros</button><button class="btn sm sec" data-a="snew">Nuevo servicio / reparación</button><button class="btn sm sec" data-a="enew">Nuevo gasto</button></div>
@@ -296,7 +303,29 @@ function inicioView(){if(!db.vehicles.length)return `<div class="mut" style="tex
  <h2>Calendario</h2>${calendar()}<h2>Costos últimos 6 meses</h2>${monthBars()}${unitBars('DATA 02 · POR UNIDAD','AÑO','anio')}${(()=>{const[c,t]=catsOf('anio');return donutBox('DATA 03 · MIX','AÑO',c,t)})()}`}
 
 /* ============ Móviles ============ */
-function movilesView(){if(!db.vehicles.length)return emptyV();
+const PLANTILLA=['Datos del móvil (SCHVARTZ)','Completá y respondé este mensaje:','','Nombre (ej. Hilux):','Patente:','Tipo (Auto / Camioneta / Moto / Utilitario / Camión):','Marca:','Modelo:','Año:','Combustible (Nafta / Diesel / GNC / Eléctrico / Híbrido):','Kilometraje actual:','Chasis / VIN:','Propietario:','Service cada (km):','Km del último service:','Fecha del último service (dd/mm/aaaa):','Notas:'].join('\n');
+const waOpen=t=>window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');
+function parseAltaTxt(txt){const o={},num=v=>{const x=String(v).replace(/[^\d.,]/g,'').replace(/\.(?=\d{3}\b)/g,'').replace(',','.');return x!==''&&isFinite(+x)?+x:''},pick=(v,list,d)=>list.find(x=>sinAc(x.toLowerCase())===sinAc(v.toLowerCase()))||list.find(x=>sinAc(v.toLowerCase()).startsWith(sinAc(x.toLowerCase().split(' ')[0])))||d;
+ txt.split(/\r?\n/).forEach(line=>{const m=line.match(/^\s*[*_~\-•]*\s*([^:]{2,60}?)\s*[*_]*\s*:\s*(.*)$/);if(!m)return;const k=sinAc(m[1].toLowerCase()),v=m[2].replace(/[*_~]/g,'').trim();if(!v)return;
+  if(/fecha.*(ultimo|service)/.test(k)){const d=v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);o.lastPmFecha=d?`${d[3].length===2?'20'+d[3]:d[3]}-${d[2].padStart(2,'0')}-${d[1].padStart(2,'0')}`:/^\d{4}-\d{2}-\d{2}$/.test(v)?v:''}
+  else if(/km.*(ultimo|ult)/.test(k))o.lastPmKm=num(v);
+  else if(/service cada|cada.*km|intervalo/.test(k))o.pmKm=num(v);
+  else if(/meses/.test(k))o.pmMeses=num(v);
+  else if(/^(nombre|alias|movil|unidad)/.test(k))o.alias=v;
+  else if(/patente|dominio/.test(k))o.patente=v;
+  else if(/^tipo/.test(k))o.tipo=pick(v,['Auto','Camioneta','Moto','Utilitario','Camión','Otro'],'Otro');
+  else if(/^marca/.test(k))o.marca=v;else if(/^modelo|version/.test(k))o.modelo=v;
+  else if(/^ano|^año/.test(k))o.anio=num(v);
+  else if(/combustible/.test(k))o.comb=pick(v,['Nafta','Diesel','GNC','Nafta + GNC','Eléctrico','Híbrido'],'Nafta');
+  else if(/kilometr|^km/.test(k))o.km=num(v);
+  else if(/chasis|vin/.test(k))o.vin=v;else if(/propietario|dueno|titular/.test(k))o.prop=v;
+  else if(/nota|observ/.test(k))o.notas=v});return o}
+function altaUrl(){const b=dbBase(),pm=b.match(/^https:\/\/([\w-]+)-default-rtdb\.firebaseio\.com$/);return baseUrl()+'#alta'+(pm?'&p='+pm[1]:'&f='+b64e(b))}
+function altaList(){const ids=Object.keys(ALTAS);if(!ids.length)return '';return `<h2>Solicitudes de alta (${ids.length})</h2>`+ids.map(id=>{const a=ALTAS[id];return `<div class="card"><div class="row"><b>${esc(a.alias)}</b><span class="chip warn">Pendiente</span></div><div class="mut">${esc([a.patente,a.marca,a.modelo,a.anio].filter(Boolean).join(' · '))}</div>${a.quien?`<div class="mut">Cargado por ${esc(a.quien)}</div>`:''}<div class="btns"><button class="btn sm" data-a="altaadd" data-id="${id}">Revisar y agregar</button><button class="btn sm del" data-a="altadel" data-id="${id}">Descartar</button></div></div>`}).join('')}
+function altaBanner(){const n=Object.keys(ALTAS).length;return n?`<div class="card alert warn item" data-a="tab" data-t="moviles">📥 ${n} solicitud${n>1?'es':''} de alta de móvil para revisar</div>`:''}
+function movilesView(){return `<div class="btns"><button class="btn sm sec" data-a="altalink">📤 Compartir formulario de alta</button><button class="btn sm sec" data-a="altapegar">📋 Pegar respuesta de WhatsApp</button></div>`+altaList()+movilesView0()}
+function inicioView(){return altaBanner()+inicioView0()}
+function movilesView0(){if(!db.vehicles.length)return emptyV();
  return db.vehicles.map(v=>{const st=vehState(v),pm=pmCalc(v);return `<div class="card item" data-a="vopen" data-id="${v.id}"><div class="row"><b>${esc(vname(v))}</b><span class="chip ${st}">${st==='none'?'Sin datos':st==='ok'?'Al día':st==='warn'?'Atención':'Vencido'}</span></div><div class="mut">${esc(vsub(v))}</div><div class="row" style="margin-top:6px"><span>${nf(v.km)} km</span><span class="mut">${pm.nextKm!=null?'Próx. service: '+nf(pm.nextKm)+' km':''}</span></div></div>`}).join('')+`<button class="fab" data-a="vnew">+</button><div class="btns"><button class="btn sec sm" data-a="qrall">Hoja de QR de todas las unidades</button></div>`}
 function vehicleView(v){const pm=pmCalc(v),sv=db.services.filter(s=>s.vid===v.id).sort((a,b)=>(b.fechaReal||b.fecha).localeCompare(a.fechaReal||a.fecha)),fs=fuelStats(v.id);
  const kl=db.kmlog.filter(k=>k.vid===v.id).sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.km-a.km);
@@ -342,7 +371,7 @@ function gastosView(){const all=allCosts().filter(x=>inPeriod(x.fecha,ui.gp)&&(!
  <h2>Movimientos</h2>${rows.map(x=>`<div class="card item row" data-a="${x.src==='s'?'sopen':'eedit'}" data-id="${x.id}"><span>${fmtD(x.fecha)} · ${esc(x.cat)}<br><span class="mut">${esc(vname(V(x.vid)))}${x.nota?' · '+esc(x.nota):''}</span></span><b>${money(x.monto)}</b></div>`).join('')||'<div class="mut">Sin movimientos.</div>'}<button class="fab" data-a="enew">+</button>`}
 
 /* ============ Formularios ============ */
-function vform(v){v=v||{};modal(`<h3>${v.id?'Editar móvil':'Nuevo móvil'}</h3><input type="hidden" name="id" value="${esc(v.id||'')}">
+function vform(v){v=v||{};modal(`<h3>${v.id?'Editar móvil':'Nuevo móvil'}</h3><input type="hidden" name="id" value="${esc(v.id||'')}"><input type="hidden" name="alta" value="${esc(v._alta||'')}">
  ${F.t('Nombre / alias (ej. “Hilux”)','alias',v.alias)}<div class="grid2">${F.t('Patente','patente',v.patente,'style="text-transform:uppercase"')}${F.s('Tipo','tipo',['Auto','Camioneta','Moto','Utilitario','Camión','Otro'],v.tipo||'Auto')}${F.t('Marca','marca',v.marca)}${F.t('Modelo / versión','modelo',v.modelo)}${F.n('Año','anio',v.anio)}${F.s('Combustible','comb',['Nafta','Diesel','GNC','Nafta + GNC','Eléctrico','Híbrido'],v.comb||'Nafta')}${F.n('Kilometraje actual','km',v.km)}${F.t('Chasis / VIN','vin',v.vin)}</div>${F.t('Propietario (se imprime en la etiqueta del QR)','prop',v.prop??OWNER_DEF)}
  <h2>Plan de mantenimiento</h2><div class="grid2">${F.n('Service cada (km)','pmKm',v.pmKm??10000)}${F.n('o cada (meses)','pmMeses',v.pmMeses??12)}${F.n('Km del último service','lastPmKm',v.lastPmKm)}${F.d('Fecha del último service','lastPmFecha',v.lastPmFecha)}</div>${F.a('Notas','notas',v.notas)}
  <div class="btns"><button class="btn" data-a="vsave">Guardar</button><button class="btn sec" data-a="close">Cancelar</button></div>`)}
@@ -499,7 +528,7 @@ const A={
   const oldKm=v.km;Object.assign(v,{alias:f.alias,patente:f.patente.toUpperCase().replace(/\s/g,''),tipo:f.tipo,marca:f.marca,modelo:f.modelo,anio:n(f.anio),comb:f.comb,km:+f.km||0,vin:f.vin,prop:f.prop,pmKm:+f.pmKm||0,pmMeses:+f.pmMeses||0,lastPmKm:n(f.lastPmKm),lastPmFecha:f.lastPmFecha,notas:f.notas});
   if(isNew||v.km!==oldKm)v.kmFecha=today();
   if(isNew&&v.km)db.kmlog.push({id:uid(),vid:v.id,fecha:today(),km:v.km,nota:'Alta de la unidad'});
-  save();closeModal();ui.vid=v.id;render();toast(isNew?'Móvil agregado — ya podés generar su QR':'Guardado')},
+  if(f.alta)altaRm(f.alta);save();closeModal();ui.vid=v.id;render();toast(isNew?'Móvil agregado — ya podés generar su QR':'Guardado')},
  vdel:d=>{if(!confirm('¿Eliminar este móvil con todos sus turnos, kilómetros y gastos?'))return;const id=d.id;db.vehicles=db.vehicles.filter(v=>v.id!==id);db.services=db.services.filter(s=>s.vid!==id);db.expenses=db.expenses.filter(e=>e.vid!==id);db.kmlog=db.kmlog.filter(k=>k.vid!==id);delete PH[id];phSave(id);if(fbRef)firebase.database().ref('publico/'+id).remove();save();ui.vid=null;render()},
  vencnew:d=>vencForm(d.id),vencedit:d=>vencForm(d.id,+d.i),
  vencsave:()=>{const f=fd();if(!f.tipo||!f.fecha)return toast('Completá documento y fecha');const v=V(f.vid),e={tipo:f.tipo,fecha:f.fecha,nota:f.nota};if(f.i==='')v.venc.push(e);else v.venc[+f.i]=e;save();closeModal();render()},
@@ -533,6 +562,15 @@ const A={
  qr:d=>{const v=V(d.id),u=qrUrl(v);modal(`<h3>QR de ${esc(vname(v))}</h3><div class="qrbox" style="text-align:center">${qrSvg(u)}</div><p class="mut">Al escanearlo se abre solo un reporte de la unidad con sus fotos (solo lectura), sin acceso a la app. ${dbBase()?'Los datos se leen en vivo: el QR impreso siempre muestra la información actualizada.':'Sin Firebase conectado el QR es una instantánea de hoy y las fotos no viajan en él: conectá Firebase en Ajustes para ver las fotos desde cualquier celular.'}</p>${httpOk()?'':'<p style="color:var(--red)">Estás abriendo la app como archivo: publicala (GitHub Pages) para que el QR funcione al escanear.</p>'}<div class="btns"><button class="btn" data-a="qrprint" data-id="${v.id}">Imprimir etiqueta</button><button class="btn sec" data-a="qrcopy" data-id="${v.id}">Compartir enlace</button><button class="btn sec" data-a="close">Cerrar</button></div>`)},
  qrprint:d=>{const v=V(d.id);printHTML(`<div class="qrs" style="grid-template-columns:repeat(1,1fr);max-width:5cm;margin:20px auto"><div>${qrSvg(qrUrl(v))}<b style="font-size:16px">${esc(vname(v))}</b><br>${esc(v.patente||'')}<br>Escaneá para ver el reporte</div></div>`)},
  qrall:()=>{if(!db.vehicles.length)return toast('No hay móviles');modal(`<h3>Hoja de QR</h3><p class="mut">${db.vehicles.length} unidades, lista para imprimir y recortar.</p><div class="btns"><button class="btn" data-a="qrdocx" data-m="rollo">Word para impresora de etiquetas (7 × 5,5 cm, una por página)</button><button class="btn sec" data-a="qrdocx" data-m="hoja">Word en hoja A4 (3 por fila)</button><button class="btn sec" data-a="qrallprint">Imprimir hoja</button><button class="btn sec" data-a="close">Cerrar</button></div><p class="mut">Impresora de etiquetas: el Word tiene el tamaño de página de la etiqueta (7 × 5,5 cm) y una unidad por página. En la impresora elegí ese mismo tamaño de papel e imprimí al 100 %.</p>`)},
+ altawa:()=>waOpen('Hola! Completá los datos del móvil para SCHVARTZ en este formulario: '+altaUrl()),
+ altaplantilla:()=>waOpen(PLANTILLA),
+ altapegar:()=>modal(`<h3>Pegar respuesta de WhatsApp</h3><p class="mut">Copiá el mensaje que te respondieron (con los datos completados) y pegalo acá. La app arma el móvil y lo revisás antes de guardar.</p><textarea id="al_txt" rows="9" placeholder="Nombre: Hilux&#10;Patente: AB123CD&#10;Kilometraje: 85000…"></textarea><div class="btns"><button class="btn" data-a="altapegarok">Armar móvil</button><button class="btn sec" data-a="close">Cancelar</button></div>`),
+ altapegarok:()=>{const o=parseAltaTxt($('#al_txt').value||'');if(!o.alias&&!o.patente)return toast('No encontré datos. Revisá que el mensaje tenga líneas como “Nombre: …”');vform({...o,alias:o.alias||o.patente,tipo:o.tipo||'Auto',comb:o.comb||'Nafta'})},
+ altalink:()=>{if(!dbBase())return toast('Primero conectá Firebase');const u=altaUrl();modal(`<h3>Compartir formulario de alta</h3><p class="mut"><b>Opción 1 — Link con formulario:</b> la persona lo abre desde WhatsApp, completa y envía. Los datos llegan a la app y los revisás antes de agregarlos.</p><div class="btns"><button class="btn" data-a="altawa">📲 Enviar link por WhatsApp</button></div><p class="mut"><b>Opción 2 — Responder por WhatsApp:</b> le mandás una plantilla, la persona la completa y te responde en el chat. Después tocás “Pegar respuesta de WhatsApp” en Móviles.</p><div class="btns"><button class="btn sec" data-a="altaplantilla">📝 Enviar plantilla por WhatsApp</button></div><label>Link<input id="al_url" readonly value="${esc(u)}"></label><div class="btns"><button class="btn sec" data-a="altacopy">Copiar link</button><button class="btn sec" data-a="altashare">Compartir…</button></div><div class="qrbox" style="text-align:center">${qrSvg(u)}</div><div class="btns"><button class="btn sec" data-a="close">Cerrar</button></div>`)},
+ altacopy:async()=>{try{await navigator.clipboard.writeText(altaUrl());toast('Link copiado')}catch(e){$('#al_url').select();toast('Copialo manualmente')}},
+ altashare:()=>{const u=altaUrl();if(navigator.share)navigator.share({title:'Alta de móvil',text:'Completá los datos del móvil (SCHVARTZ)',url:u}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent('Completá los datos del móvil (SCHVARTZ): '+u),'_blank')},
+ altaadd:d=>{const a=ALTAS[d.id];if(!a)return;vform({alias:a.alias,patente:a.patente,tipo:a.tipo||'Auto',marca:a.marca,modelo:a.modelo,anio:a.anio,comb:a.comb||'Nafta',km:a.km,vin:a.vin,prop:a.prop,pmKm:a.pmKm,pmMeses:a.pmMeses,lastPmKm:a.lastPmKm,lastPmFecha:a.lastPmFecha,notas:[a.notas,a.quien&&'Cargado por '+a.quien].filter(Boolean).join(' · '),_alta:d.id})},
+ altadel:d=>{if(!confirm('¿Descartar esta solicitud?'))return;altaRm(d.id);render();toast('Solicitud descartada')},
  qrdocx:async d=>{try{toast('Generando Word…');await qrDocx(d.m)}catch(e){toast('No se pudo generar el Word: '+e.message)}},
  qrallprint:()=>printHTML(`<div class="qrs">${db.vehicles.map(v=>`<div>${qrSvg(qrUrl(v))}<b>${esc(vname(v))}</b><br>${esc(v.patente||'')}</div>`).join('')}</div>`),
  fotoadd:d=>{window._fv=d.id;const f=$('#fimg');f.value='';f.click()},
@@ -591,8 +629,9 @@ function showLock(){const l=document.createElement('div');l.className='lock';l.i
 let fbRef=null,fbT=null;
 const setSync=(s)=>{window._sync=s;$('#sync').textContent=s==='ok'?'● sync':s?'● sin sync':'';if(!ui.vid&&ui.tab==='ajustes'&&!$('#modal').classList.contains('on'))render()};
 function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('No se pudo cargar Firebase'));document.head.appendChild(s)})}
-let qrRef=null;
-function qrWatch(on){if(!window.firebase)return;if(on&&!qrRef){qrRef=firebase.database().ref('gastos_qr');qrRef.on('value',importQr)}else if(!on&&qrRef){qrRef.off();qrRef=null}}
+let qrRef=null,altRef=null,ALTAS={};
+function altaRm(id){delete ALTAS[id];try{if(window.firebase&&IS_ADMIN)firebase.database().ref('altas_qr/'+id).remove()}catch(e){}}
+function qrWatch(on){if(!window.firebase)return;if(on&&!qrRef){qrRef=firebase.database().ref('gastos_qr');qrRef.on('value',importQr);altRef=firebase.database().ref('altas_qr');altRef.on('value',sn=>{ALTAS=sn.val()||{};if(!$('#modal').classList.contains('on')&&['inicio','moviles'].includes(ui.tab)&&!ui.vid)render()})}else if(!on&&qrRef){qrRef.off();if(altRef)altRef.off();qrRef=altRef=null;ALTAS={}}}
 function importQr(snap){if(!IS_ADMIN)return;const o=snap.val();if(!o)return;let n=0;
  Object.keys(o).forEach(vid=>{const v=V(vid);if(!v)return;Object.keys(o[vid]||{}).forEach(gid=>{const g=o[vid][gid];if(!g||db.expenses.some(e=>e.id===gid))return;
   db.expenses.push({id:gid,vid,fecha:g.fecha,cat:g.cat,monto:+g.monto||0,litros:g.litros?+g.litros:'',km:g.km?+g.km:'',nota:[g.nota,g.quien&&'('+g.quien+')'].filter(Boolean).join(' '),qr:true});if(g.km)bumpKm(v,g.km);n++})});
@@ -637,12 +676,60 @@ async function showLive(){const m0=location.hash.match(/^#v=([^&]+)&(?:f=(.+)|p=
   $('#gf_mic').onclick=()=>vozEscuchar($('#gf_mic'),est,ap);$('#gf_v').onchange=()=>ap($('#gf_v').value)}
 
  for(let i=0;i<4;i++){try{const f=await get('/fotos/'+i,30000);if(typeof f==='string'&&f.startsWith('data:image')){const im=new Image();im.src=f;im.onclick=()=>im.classList.toggle('big');$('#galv').appendChild(im)}else if(!f)break}catch(e){break}}}
+/* ============ Formulario público de alta de móvil ============ */
+function showAlta(){const m=location.hash.match(/^#alta&(?:f=(.+)|p=([\w-]+))$/);$('#app').style.display='none';$('#modal').style.display='none';const V_=$('#viewer');let base;
+ try{base=m&&(m[2]?'https://'+m[2]+'-default-rtdb.firebaseio.com':b64d(m[1]))}catch(e){}
+ if(!base){V_.innerHTML='<p style="padding:20px">El link del formulario no es válido. Pedí uno nuevo.</p>';return}
+ const MARCAS=['Toyota','Ford','Chevrolet','Volkswagen','Fiat','Renault','Peugeot','Honda','Yamaha','Zanella','Benelli','Bajaj'];
+ const ST=[
+  {k:'tipo',q:'¿Qué tipo de móvil es?',o:['Auto','Camioneta','Moto','Utilitario','Camión','Otro']},
+  {k:'comb',q:'¿Qué combustible usa?',o:['Nafta','Diesel','GNC','Nafta + GNC','Eléctrico','Híbrido']},
+  {k:'alias',q:'¿Cómo le decimos? (nombre o alias)',ph:'Ej: Hilux, Dominar, el Corsa'},
+  {k:'patente',q:'¿Cuál es la patente?',ph:'AB123CD',up:1},
+  {k:'marca',q:'¿De qué marca es?',o:MARCAS,ph:'Otra marca…'},
+  {k:'modelo',q:'¿Qué modelo o versión?',ph:'Ej: Classic 1.4, Dominar 400'},
+  {k:'anio',q:'¿De qué año es?',num:1,ph:'Ej: 2018'},
+  {k:'km',q:'¿Cuántos kilómetros tiene hoy?',num:1,ph:'Ej: 85000'},
+  {k:'prop',q:'¿Quién es el propietario?',o:['Eduardo Schvartz'],ph:'Otro propietario…'},
+  {k:'pmKm',q:'¿Cada cuántos km se le hace el service?',o:['5000','10000','15000'],num:1,ph:'Otro valor en km…'},
+  {k:'lastPmKm',q:'¿A qué kilometraje se hizo el último service?',num:1,ph:'Ej: 80000'},
+  {k:'lastPmFecha',q:'¿En qué fecha se hizo el último service?',date:1},
+  {k:'notas',q:'¿Querés avisar algo más? (opcional)',area:1,ph:'Seguro, cédula, detalles…'},
+  {k:'quien',q:'¿Cuál es tu nombre?',ph:'Para saber quién completó los datos'}];
+ const LAB={tipo:'Tipo',comb:'Combustible',alias:'Nombre',patente:'Patente',marca:'Marca',modelo:'Modelo',anio:'Año',km:'Kilometraje',prop:'Propietario',pmKm:'Service cada (km)',lastPmKm:'Km último service',lastPmFecha:'Fecha último service',notas:'Notas',quien:'Completó'};
+ const ans={};let i=0,sending=false,fromSum=false;const adv=()=>{if(fromSum){i=ST.length;fromSum=false}else i++;paint()};
+ const fmtV=(k,v)=>k==='lastPmFecha'?fmtD(v):/^(anio)$/.test(k)?v:/^(km|pmKm|lastPmKm)$/.test(k)?nf(v)+' km':v;
+ const head=()=>`<div class="top"><img src="icon-192.png" alt=""><div><b>SCHVARTZ</b><span>Alta de un móvil</span></div></div>`;
+ function paint(msg){
+  if(i>=ST.length){const ks=ST.filter(x=>ans[x.k]!==undefined&&ans[x.k]!=='');
+   V_.innerHTML=`<div class="rep wz">${head()}<h1>Resumen</h1><h4>Revisá los datos</h4><p>Si algo está mal, tocá la línea para <b>corregirla</b> y volvés directo acá. Cuando esté todo bien, tocá <b>Enviar datos</b>.</p>${ks.length?`<div class="wzs">${ks.map(x=>`<div class="wzr" data-i="${ST.indexOf(x)}"><span>${LAB[x.k]}</span><b>${esc(fmtV(x.k,ans[x.k]))}</b><u>✏️ Corregir</u></div>`).join('')}</div>`:'<p>No cargaste ningún dato.</p>'}<div id="wzm" style="margin:10px 2px;font-size:13px;color:#fb7185">${msg||''}</div><button class="wzb" id="wz_send">Enviar datos</button><button class="wzb sec" id="wz_back">‹ Volver a las preguntas</button></div>`;
+   V_.querySelectorAll('.wzr').forEach(e=>e.onclick=()=>{i=+e.dataset.i;fromSum=true;paint()});$('#wz_back').onclick=()=>{i=ST.length-1;paint()};$('#wz_send').onclick=send;return}
+  const s=ST[i],cur=ans[s.k]??'',oo=s.o&&!s.ph;
+  V_.innerHTML=`<div class="rep wz">${head()}<div class="wzp"><i style="width:${i/ST.length*100}%"></i></div><div class="wzn">Pregunta ${i+1} de ${ST.length}</div><h4 class="wzq">${s.q}</h4>
+   ${s.o?`<div class="wzo">${s.o.map(o=>`<button class="opt${String(cur)===o?' on':''}" data-v="${esc(o)}">${s.num?nf(o)+' km':o}</button>`).join('')}</div>`:''}
+   ${oo?'':s.date?`<input id="wz_in" type="date" value="${esc(cur)}">`:s.area?`<textarea id="wz_in" rows="3" maxlength="300" placeholder="${esc(s.ph||'')}">${esc(cur)}</textarea>`:`<input id="wz_in" ${s.num?'type="number" inputmode="numeric"':''} maxlength="60" placeholder="${esc(s.ph||'')}" value="${s.o&&s.o.includes(String(cur))?'':esc(cur)}" ${s.up?'style="text-transform:uppercase"':''}>`}
+   <div id="wzm" style="margin:6px 2px;font-size:13px;color:#fb7185">${msg||''}</div>
+   ${oo?'':'<button class="wzb" id="wz_next">Siguiente ›</button>'}<div class="wzr2">${i>0||fromSum?`<button class="wzb sec" id="wz_prev">${fromSum?'‹ Volver al resumen':'‹ Atrás'}</button>`:''}<button class="wzb sec" id="wz_skip">Omitir</button></div></div>`;
+  V_.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ans[s.k]=s.num?+b.dataset.v:b.dataset.v;adv()});
+  const go=()=>{let v=$('#wz_in').value.trim();if(v===''){if(ans[s.k]!==undefined&&s.o&&!$('#wz_in').value)return next();return paint('Escribí una respuesta o tocá “Omitir”.')}
+   if(s.num){if(!isFinite(+v)||+v<0)return paint('Ingresá solo números.');v=+v}else if(s.up)v=v.toUpperCase().replace(/\s/g,'');ans[s.k]=v;next()},
+   next=adv;
+  if(!oo){$('#wz_next').onclick=go;$('#wz_in').onkeydown=e=>{if(e.key==='Enter'&&!s.area){e.preventDefault();go()}}};
+  $('#wz_skip').onclick=()=>{if(!s.o||!ans[s.k])delete ans[s.k];next()};if($('#wz_prev'))$('#wz_prev').onclick=()=>{if(fromSum){i=ST.length;fromSum=false}else i--;paint()}}
+ async function send(){if(sending)return;if(!ans.alias&&!ans.patente){i=2;return paint('Falta el nombre o la patente para identificar el móvil.')}
+  const o={alias:String(ans.alias||ans.patente).slice(0,60),t:Date.now(),pmMeses:12};
+  Object.keys(ans).forEach(k=>{if(k!=='alias'&&ans[k]!==''&&ans[k]!==undefined)o[k]=typeof ans[k]==='string'?ans[k].slice(0,k==='notas'?300:60):ans[k]});
+  sending=true;$('#wz_send').disabled=true;$('#wz_send').textContent='Enviando…';
+  try{const d=await (await fetch(base+'/altas_qr.json',{method:'POST',body:JSON.stringify(o)})).json();if(!d||d.error||!d.name)throw new Error(d&&d.error||'sin respuesta');
+   V_.innerHTML=`<div class="rep wz">${head()}<h4 class="wzq" style="margin-top:30px">¡Datos enviados! ✅</h4><p>Gracias. Los datos de <b>${esc(o.alias)}</b> ya llegaron y el administrador los va a revisar para agregar el móvil.</p><button class="wzb" id="wz_otro">Cargar otro móvil</button></div>`;$('#wz_otro').onclick=()=>location.reload()}
+  catch(e){sending=false;paint('No se pudo enviar ('+(e.message||'error')+'). Probá de nuevo o avisá al administrador.')}}
+ paint()}
 /* ============ Arranque ============ */
 function start(){render();fbStart()}
 async function boot(){if(location.hash.startsWith('#cfg=')){try{const c=b64d(location.hash.slice(5));if(c.apiKey&&c.databaseURL){db.settings.fb=c;save(false);setTimeout(()=>toast('Dispositivo conectado a Firebase'),600)}}catch(e){}history.replaceState(null,'',location.pathname)}
-if(location.hash.startsWith('#v=')){showLive();return}if(location.hash.startsWith('#r=')){await phLoad();showViewer();return}await phLoad();
+if(location.hash.startsWith('#alta')){showAlta();return}if(location.hash.startsWith('#v=')){showLive();return}if(location.hash.startsWith('#r=')){await phLoad();showViewer();return}await phLoad();
  if(db.settings.pin&&sessionStorage.getItem('mm_unl')!=='1'){showLock();return}start()}
-window.addEventListener('hashchange',()=>{if(/^#[rv]=/.test(location.hash))location.reload()});
+window.addEventListener('hashchange',()=>{if(/^#(?:[rv]=|alta)/.test(location.hash))location.reload()});
 if('serviceWorker'in navigator&&httpOk())navigator.serviceWorker.register('sw.js').catch(()=>{});
 boot();
 </script>
