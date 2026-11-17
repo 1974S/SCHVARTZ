@@ -151,6 +151,9 @@ select,input,textarea{background:#071d42;border-color:#1b55a3;color:var(--tx)}
 .rep .gform label{color:var(--mut);display:block;font-size:12px}
 .rep .gform input,.rep .gform select{width:100%;padding:10px;margin:3px 0 8px;border:1px solid #1b55a3;border-radius:8px;font:inherit;background:#071d42;color:var(--tx)}
 .rep .gform button{background:linear-gradient(180deg,#38c8f8,#1597d6);color:#03162e;border:0;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:700;width:100%;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 0 14px #22c1f544}
+.voz{margin-bottom:10px}.voz textarea{width:100%;margin:8px 0 4px;resize:vertical}.voz .btn,.rep .gform .micb{width:100%;padding:14px;font-size:15px}
+.rep .gform textarea{width:100%;padding:10px;margin:8px 0 4px;border:1px solid #1b55a3;border-radius:8px;font:inherit;background:#071d42;color:var(--tx)}
+button.rec{animation:recp 1s infinite;background:linear-gradient(180deg,#fb7185,#e11d48)!important;color:#fff!important}@keyframes recp{50%{box-shadow:0 0 22px #fb7185}}
 @media print{body.printing .rep{color:#000}body.printing .rep .top{background:#fff;border-bottom:1px solid #000}body.printing .rep .top span,body.printing .rep p{color:#444}body.printing .rep h1,body.printing .rep h5{color:#000}body.printing .rep h5::after{display:none}body.printing .rep p.c{background:#eee;color:#000;border-color:#999}body.printing .rep .tbl{background:#fff;border-color:#999}body.printing .rep .tbl th{background:#e5e5e5;color:#000}body.printing .rep .tbl td{color:#000;border-color:#bbb}body.printing .rep .kpi{background:#fff;border-color:#999}body.printing .rep .kpi b{color:#000;text-shadow:none}body.printing .rep .kpi .mut{color:#333}body.printing .rep .gform{display:none}}
 @media print{body.printing #app,body.printing .modal,body.printing nav,body.printing header,body.printing .fab{display:none!important}body.printing #printArea{display:block}body.printing{background:#fff}.qrs>div{break-inside:avoid}}
 </style>
@@ -362,9 +365,53 @@ function sdetail(id){const s=db.services.find(x=>x.id===id);if(!s)return;const v
  ${s.items.length?`<h2>Repuestos y servicios</h2><table class="tbl"><tr><th>Ítem</th><th>Cant.</th><th>Tipo</th><th>Total</th></tr>${s.items.map(i=>`<tr><td>${esc(i.n)}</td><td>${nf(i.cant)}</td><td>${esc(i.tipo)}</td><td>${money(i.cant*i.costo)}</td></tr>`).join('')}</table>`:''}
  ${s.checklist.length?`<h2>Checklist</h2>${s.checklist.map((c,i)=>`<div class="chk ${c.done?'on':''}" data-a="chk" data-id="${s.id}" data-i="${i}"><i>${c.done?'✓':''}</i><span>${esc(c.t)}</span></div>`).join('')}`:''}${s.notas?`<p class="mut">${esc(s.notas)}</p>`:''}
  <div class="btns">${s.estado==='pendiente'?`<button class="btn" data-a="sdone" data-id="${s.id}">Marcar realizado</button>`:`<button class="btn sec" data-a="sreopen" data-id="${s.id}">Reabrir</button>`}<button class="btn sec" data-a="sedit" data-id="${s.id}">Editar</button><button class="btn del" data-a="sdel" data-id="${s.id}">Eliminar</button><button class="btn sec" data-a="close">Cerrar</button></div>`)}
+/* ============ Carga de gastos por voz ============ */
+const NUMW={cero:0,un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,trece:13,catorce:14,quince:15,dieciseis:16,diecisiete:17,dieciocho:18,diecinueve:19,veinte:20,treinta:30,cuarenta:40,cincuenta:50,sesenta:60,setenta:70,ochenta:80,noventa:90,cien:100,ciento:100,doscientos:200,trescientos:300,cuatrocientos:400,quinientos:500,seiscientos:600,setecientos:700,ochocientos:800,novecientos:900};
+const sinAc=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'');
+function numTok(w){if(/^\d{1,3}(\.\d{3})+$/.test(w))return +w.replace(/\./g,'');if(/^\d+([.,]\d+)?$/.test(w))return +w.replace(',','.');if(NUMW[w]!=null)return NUMW[w];const m=w.match(/^veinti(\w+)$/);if(m&&NUMW[m[1]]!=null)return 20+NUMW[m[1]];return null}
+function palabrasANum(t){const tk=sinAc(t.toLowerCase()).replace(/\$/g,' $ ').split(/\s+/).filter(Boolean),out=[];let i=0;
+ while(i<tk.length){const w=tk[i];let v=numTok(w);const mil=/^mil$|^millon(es)?$/.test(w);
+  if(v==null&&!mil){out.push(w);i++;continue}
+  let tot=0,cur=0,any=false;
+  while(i<tk.length){const x=tk[i],n=numTok(x);
+   if(/^mil$/.test(x)){cur=(cur||1)*1000;tot+=cur;cur=0;any=true;i++}
+   else if(/^millon(es)?$/.test(x)){cur=(cur||1)*1e6;tot+=cur;cur=0;any=true;i++}
+   else if(n!=null){if(any&&cur===0&&tot===0)break;cur+=n;any=true;i++}
+   else if(x==='y'&&any&&i+1<tk.length&&numTok(tk[i+1])!=null){i++}
+   else break}
+  out.push(String(tot+cur))}
+ return out.join(' ')}
+function parseVoz(raw){const l=' '+palabrasANum(raw)+' ',o={};let r=l;
+ const take=(re,g)=>{const m=r.match(re);if(!m)return null;r=r.replace(m[0],' ');return m[g||1]};
+ const L=take(/(\d+(?:\.\d+)?)\s*(?:litros?|lts?|l)\b/);if(L)o.litros=+L;
+ const K=take(/(\d+)\s*(?:kilometros?|kms?)\b/)||take(/(?:kilometraje|kilometros|kms?)\s*(?:de|a|en|:)?\s*(\d+)/);if(K)o.km=+K;
+ let M=take(/(\d+(?:\.\d+)?)\s*(?:pesos|mangos)\b/)||take(/\$\s*(\d+(?:\.\d+)?)/)||take(/(?:gaste|pague|cargue|costo|salio|total|monto|por)\s*(?:de|un total de)?\s*(\d+(?:\.\d+)?)/);
+ if(!M){const ns=(r.match(/\d+(?:\.\d+)?/g)||[]).map(Number).sort((a,b)=>b-a);if(ns.length)M=ns[0]}
+ if(M)o.monto=+M;
+ const d=new Date();if(/anteayer|antes de ayer/.test(l))d.setDate(d.getDate()-2);else if(/\bayer\b/.test(l))d.setDate(d.getDate()-1);o.fecha=ymd(d);
+ const C=[['Combustible',/nafta|combustible|gasoil|gas oil|diesel|gnc|surtidor|estacion de servicio|\bypf\b|cargue? (?:\d+ )?litros|litros/],['Repuestos',/repuesto|filtro|aceite|pastilla|cubierta|neumatico|bateria|bujia|correa|amortiguador|lampara|cadena|kit de|freno/],['Lavado',/lavad|lave\b|lavadero/],['Peaje',/peaje/],['Estacionamiento',/estacionamiento|cochera|playa de/],['Seguro',/seguro|poliza/],['Patente / impuestos',/patente|impuesto|rentas|vtv|rto/],['Multa',/multa|infraccion|acta/]];
+ o.cat='Otro';for(const[k,re]of C)if(re.test(sinAc(raw.toLowerCase()))){o.cat=k;break}
+ if(o.litros&&o.cat==='Otro')o.cat='Combustible';
+ o.nota=raw.trim().slice(0,100);return o}
+function vozResumen(o){return [o.cat,o.monto?money(o.monto):'sin monto',o.litros?o.litros+' L':'',o.km?nf(o.km)+' km':'',fmtD(o.fecha)].filter(Boolean).join(' · ')}
+function vozEscuchar(btn,estado,cb){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){estado('Este navegador no dicta desde la app. Tocá el micrófono del teclado y hablá en el cuadro de texto.');return}
+ let fin='';const r=new SR();r.lang='es-AR';r.interimResults=true;r.continuous=false;
+ btn.classList.add('rec');estado('🎙️ Escuchando… hablá ahora');
+ r.onresult=e=>{let t='';for(const x of e.results)t+=x[0].transcript;fin=t;estado('“'+t+'”')};
+ r.onerror=e=>estado(e.error==='not-allowed'||e.error==='service-not-allowed'?'No diste permiso al micrófono. Habilitalo en el navegador y probá de nuevo.':e.error==='no-speech'?'No te escuché. Probá de nuevo.':'No se pudo escuchar ('+e.error+').');
+ r.onend=()=>{btn.classList.remove('rec');if(fin)cb(fin)};
+ try{r.start()}catch(e){estado('No se pudo iniciar el micrófono.')}}
 function eform(vid,e){e=e||{};if(!db.vehicles.length)return toast('Primero agregá un móvil');
- modal(`<h3>${e.id?'Editar':'Nuevo'} gasto</h3><input type="hidden" name="id" value="${esc(e.id||'')}">${F.s('Móvil','vid',vopts(),e.vid||vid||db.vehicles[0].id)}<div class="grid2">${F.d('Fecha','fecha',e.fecha||today())}${F.s('Categoría','cat',CATS.filter(c=>c!=='Servicios'),e.cat||'Combustible')}${F.n('Monto $','monto',e.monto)}${F.n('Litros (combustible)','litros',e.litros)}${F.n('Km al cargar (opcional)','km',e.km)}</div>${F.t('Nota','nota',e.nota)}
- <div class="btns"><button class="btn" data-a="esave">Guardar</button>${e.id?'<button class="btn del" data-a="edel">Eliminar</button>':''}<button class="btn sec" data-a="close">Cancelar</button></div>`)}
+ modal(`<h3>${e.id?'Editar':'Nuevo'} gasto</h3>${e.id?'':`<div class="voz"><button class="btn" id="ev_mic" type="button">🎤 Cargar por voz</button><textarea id="ev_v" rows="2" placeholder="Ej: la hilux cargué 40 litros de gasoil 56 mil pesos a los 80 mil km"></textarea><div class="mut" id="ev_m">Hablá y revisá los campos antes de guardar.</div></div>`}<input type="hidden" name="id" value="${esc(e.id||'')}">${F.s('Móvil','vid',vopts(),e.vid||vid||db.vehicles[0].id)}<div class="grid2">${F.d('Fecha','fecha',e.fecha||today())}${F.s('Categoría','cat',CATS.filter(c=>c!=='Servicios'),e.cat||'Combustible')}${F.n('Monto $','monto',e.monto)}${F.n('Litros (combustible)','litros',e.litros)}${F.n('Km al cargar (opcional)','km',e.km)}</div>${F.t('Nota','nota',e.nota)}
+ <div class="btns"><button class="btn" data-a="esave">Guardar</button>${e.id?'<button class="btn del" data-a="edel">Eliminar</button>':''}<button class="btn sec" data-a="close">Cancelar</button></div>`);if(!e.id)vozApp()}
+function vozApp(){const q=n=>$('#modal [name='+n+']'),m=$('#ev_m'),est=t=>m.textContent=t;
+ const aplicar=txt=>{const o=parseVoz(txt);$('#ev_v').value=txt;const sn=sinAc(txt.toLowerCase());
+  const v=db.vehicles.find(v=>[v.alias,v.marca,v.modelo,v.patente].some(x=>x&&sinAc(String(x).toLowerCase()).split(/\s+/).some(w=>w.length>=3&&sn.includes(w))));if(v)q('vid').value=v.id;
+  if(o.monto)q('monto').value=o.monto;if(o.litros)q('litros').value=o.litros;if(o.km)q('km').value=o.km;q('fecha').value=o.fecha;
+  const sel=q('cat');sel.value=[...sel.options].some(x=>x.value===o.cat)?o.cat:'Otro';q('nota').value=o.nota;
+  est('Entendí: '+(v?vname(v)+' · ':'')+vozResumen(o)+'. Revisá y tocá Guardar.')};
+ $('#ev_mic').onclick=()=>vozEscuchar($('#ev_mic'),est,aplicar);$('#ev_v').onchange=()=>aplicar($('#ev_v').value)}
 
 /* ============ Reporte y QR ============ */
 function snapshot(v,full){const o=snapshotBase(v);if(full){const al=allCosts().filter(x=>x.vid===v.id).sort((a,b)=>b.fecha.localeCompare(a.fecha)),mk=today().slice(0,7),yk=today().slice(0,4);o.gs=al.slice(0,15).map(x=>[x.fecha,x.cat,Math.round(x.monto),(x.nota||'').slice(0,40)]);o.gm=mk;o.gy=yk;o.gt=[Math.round(al.filter(x=>x.fecha.startsWith(mk)).reduce((a,x)=>a+x.monto,0)),Math.round(al.filter(x=>x.fecha.startsWith(yk)).reduce((a,x)=>a+x.monto,0))]}return o}
@@ -383,8 +430,9 @@ function gastosHTML(r,pend){pend=pend||[];
  return `<h5>5. Gastos</h5><table class="tbl"><tr><th>Mes en curso</th><td>${money(tm)}</td><th>Año en curso</th><td>${money(ty)}</td></tr></table>${rows.length?`<table class="tbl" style="margin-top:6px"><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Monto</th></tr>${rows.map(x=>`<tr><td>${fmtD(x.f)}</td><td>${esc(x.c)}</td><td>${esc(x.n)}</td><td>${money(x.m)}</td></tr>`).join('')}</table>`:'<p>Sin gastos registrados.</p>'}`}
 function gformHTML(){
  return `<div class="rep"><div class="gform"><h5 style="margin-top:0">Cargar un gasto de esta unidad</h5>
+ <div class="voz"><button type="button" id="gf_mic" class="micb">🎤 Cargar por voz</button><textarea id="gf_v" rows="2" placeholder="Ej: cargué 20 litros de nafta 28 mil pesos a los 17 mil km"></textarea><div id="gf_vm" style="font-size:12px;color:var(--mut)">Hablá y revisá los datos antes de cargar.</div></div>
  <label>Fecha<input id="gf_f" type="date" value="${today()}"></label>
- <label>Categoría<select id="gf_c">${['Combustible','Repuestos','Lavado','Peaje','Estacionamiento','Seguro','Multa','Otro'].map(c=>`<option>${c}</option>`).join('')}</select></label>
+ <label>Categoría<select id="gf_c">${['Combustible','Repuestos','Lavado','Peaje','Estacionamiento','Seguro','Patente / impuestos','Multa','Otro'].map(c=>`<option>${c}</option>`).join('')}</select></label>
  <label>Monto $<input id="gf_m" type="number" inputmode="decimal" step="any"></label>
  <label>Litros (combustible, opcional)<input id="gf_l" type="number" inputmode="decimal" step="any"></label>
  <label>Kilometraje (opcional)<input id="gf_k" type="number" inputmode="numeric"></label>
@@ -557,6 +605,9 @@ async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('
  let pend=[];try{const q=await (await fetch(base+'/gastos_qr/'+id+'.json')).json();if(q&&!q.error)pend=Object.values(q)}catch(e){}
  try{$('#gbox').innerHTML=gastosHTML(r,pend)}catch(e){}
  $('#viewer').insertAdjacentHTML('beforeend',gformHTML());$('#gf_b').onclick=()=>sendGasto(base,id,pend,r);
+ {const est=t=>$('#gf_vm').textContent=t,ap=txt=>{const o=parseVoz(txt);$('#gf_v').value=txt;if(o.monto)$('#gf_m').value=o.monto;if(o.litros)$('#gf_l').value=o.litros;if(o.km)$('#gf_k').value=o.km;$('#gf_f').value=o.fecha;$('#gf_c').value=o.cat;$('#gf_n').value=o.nota;est('Entendí: '+vozResumen(o)+'. Revisá y tocá “Cargar gasto”.')};
+  $('#gf_mic').onclick=()=>vozEscuchar($('#gf_mic'),est,ap);$('#gf_v').onchange=()=>ap($('#gf_v').value)}
+
  for(let i=0;i<4;i++){try{const f=await get('/fotos/'+i,30000);if(typeof f==='string'&&f.startsWith('data:image')){const im=new Image();im.src=f;im.onclick=()=>im.classList.toggle('big');$('#galv').appendChild(im)}else if(!f)break}catch(e){break}}}
 /* ============ Arranque ============ */
 function start(){render();fbStart()}
