@@ -72,10 +72,10 @@ label{display:block;font-size:12px;color:var(--mut);margin-bottom:8px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111;color:#fff;padding:9px 16px;border-radius:99px;z-index:30;font-size:14px;max-width:90%}
 .lock{position:fixed;inset:0;background:var(--bg);z-index:40;display:flex;align-items:center;justify-content:center;padding:20px}
 .lock .card{max-width:320px;width:100%;text-align:center}
-.qrbox svg{width:100%;max-width:300px;height:auto;background:#fff;padding:6px;border-radius:8px}
-.qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.qrbox svg{width:100%;max-width:200px;height:auto;background:#fff;padding:6px;border-radius:8px}
+.qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@page{size:A4;margin:1cm}
 .qrs>div{border:1px dashed #888;padding:8px;text-align:center;color:#000;background:#fff;font-size:12px}
-.qrs svg{width:100%;height:auto}
+.qrs svg{display:block;margin:0 auto;width:100%;max-width:5cm;height:auto}
 #printArea{display:none}
 .gal{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
 .gal img,.fslot{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;display:block;cursor:pointer}
@@ -155,7 +155,7 @@ select,input,textarea{background:#071d42;border-color:#1b55a3;color:var(--tx)}
 .rep .gform textarea{width:100%;padding:10px;margin:8px 0 4px;border:1px solid #1b55a3;border-radius:8px;font:inherit;background:#071d42;color:var(--tx)}
 button.rec{animation:recp 1s infinite;background:linear-gradient(180deg,#fb7185,#e11d48)!important;color:#fff!important}@keyframes recp{50%{box-shadow:0 0 22px #fb7185}}
 @media print{body.printing .rep{color:#000}body.printing .rep .top{background:#fff;border-bottom:1px solid #000}body.printing .rep .top span,body.printing .rep p{color:#444}body.printing .rep h1,body.printing .rep h5{color:#000}body.printing .rep h5::after{display:none}body.printing .rep p.c{background:#eee;color:#000;border-color:#999}body.printing .rep .tbl{background:#fff;border-color:#999}body.printing .rep .tbl th{background:#e5e5e5;color:#000}body.printing .rep .tbl td{color:#000;border-color:#bbb}body.printing .rep .kpi{background:#fff;border-color:#999}body.printing .rep .kpi b{color:#000;text-shadow:none}body.printing .rep .kpi .mut{color:#333}body.printing .rep .gform{display:none}}
-@media print{body.printing #app,body.printing .modal,body.printing nav,body.printing header,body.printing .fab{display:none!important}body.printing #printArea{display:block}body.printing{background:#fff}.qrs>div{break-inside:avoid}}
+@media print{html{background:#fff!important}body.printing{background:#fff!important}body.printing #app,body.printing .modal,body.printing nav,body.printing header,body.printing .fab{display:none!important}body.printing #printArea{display:block}body.printing{background:#fff}.qrs>div{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -421,7 +421,7 @@ const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/
 const b64d=s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))));
 const baseUrl=()=>location.origin+location.pathname;
 const dbBase=()=>((db.settings.fb&&db.settings.fb.databaseURL)||'').replace(/\/$/,'');
-const qrUrl=v=>{const b=dbBase();return b?baseUrl()+'#v='+v.id+'&f='+b64e(b):baseUrl()+'#r='+b64e(snapshot(v))};
+const qrUrl=v=>{const b=dbBase(),pm=b.match(/^https:\/\/([\w-]+)-default-rtdb\.firebaseio\.com$/);return b?baseUrl()+'#v='+v.id+(pm?'&p='+pm[1]:'&f='+b64e(b)):baseUrl()+'#r='+b64e(snapshot(v))};
 function qrSvg(t){const q=qrcode(0,'L');q.addData(t);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}
 function gastosHTML(r,pend){pend=pend||[];
  const rows=arr(r.gs).map(x=>({f:x[0],c:x[1],m:+x[2]||0,n:x[3]||''})).concat(pend.map(p=>({f:p.fecha,c:p.cat,m:+p.monto,n:(p.nota||'')+' (nuevo)'}))).sort((a,b)=>b.f.localeCompare(a.f)).slice(0,15);
@@ -504,7 +504,7 @@ const A={
  edel:()=>{const f=fd();db.expenses=db.expenses.filter(e=>e.id!==f.id);save();closeModal();render()},
  calp:()=>{ui.cal.m--;if(ui.cal.m<0){ui.cal.m=11;ui.cal.y--}render()},caln:()=>{ui.cal.m++;if(ui.cal.m>11){ui.cal.m=0;ui.cal.y++}render()},day:d=>{ui.sel=ui.sel===d.d?null:d.d;render()},
  qr:d=>{const v=V(d.id),u=qrUrl(v);modal(`<h3>QR de ${esc(vname(v))}</h3><div class="qrbox" style="text-align:center">${qrSvg(u)}</div><p class="mut">Al escanearlo se abre solo un reporte de la unidad con sus fotos (solo lectura), sin acceso a la app. ${dbBase()?'Los datos se leen en vivo: el QR impreso siempre muestra la información actualizada.':'Sin Firebase conectado el QR es una instantánea de hoy y las fotos no viajan en él: conectá Firebase en Ajustes para ver las fotos desde cualquier celular.'}</p>${httpOk()?'':'<p style="color:var(--red)">Estás abriendo la app como archivo: publicala (GitHub Pages) para que el QR funcione al escanear.</p>'}<div class="btns"><button class="btn" data-a="qrprint" data-id="${v.id}">Imprimir etiqueta</button><button class="btn sec" data-a="qrcopy" data-id="${v.id}">Compartir enlace</button><button class="btn sec" data-a="close">Cerrar</button></div>`)},
- qrprint:d=>{const v=V(d.id);printHTML(`<div class="qrs" style="grid-template-columns:repeat(1,1fr);max-width:320px;margin:20px auto"><div>${qrSvg(qrUrl(v))}<b style="font-size:16px">${esc(vname(v))}</b><br>${esc(v.patente||'')}<br>Escaneá para ver el reporte</div></div>`)},
+ qrprint:d=>{const v=V(d.id);printHTML(`<div class="qrs" style="grid-template-columns:repeat(1,1fr);max-width:5cm;margin:20px auto"><div>${qrSvg(qrUrl(v))}<b style="font-size:16px">${esc(vname(v))}</b><br>${esc(v.patente||'')}<br>Escaneá para ver el reporte</div></div>`)},
  qrall:()=>{if(!db.vehicles.length)return toast('No hay móviles');modal(`<h3>Hoja de QR</h3><p class="mut">${db.vehicles.length} unidades, lista para imprimir y recortar.</p><div class="btns"><button class="btn" data-a="qrallprint">Imprimir hoja</button><button class="btn sec" data-a="close">Cerrar</button></div>`)},
  qrallprint:()=>printHTML(`<div class="qrs">${db.vehicles.map(v=>`<div>${qrSvg(qrUrl(v))}<b>${esc(vname(v))}</b><br>${esc(v.patente||'')}</div>`).join('')}</div>`),
  fotoadd:d=>{window._fv=d.id;const f=$('#fimg');f.value='';f.click()},
@@ -594,7 +594,7 @@ function showViewer(){let r;try{r=b64d(location.hash.slice(3))}catch(e){document
  try{const loc=norm(JSON.parse(localStorage.getItem(KEY)));const v=loc.vehicles.find(x=>x.id===r.id);if(v){db=loc;r=snapshot(v);window._vf=PH[v.id]}}catch(e){}
  $('#app').style.display='none';$('#modal').style.display='none';$('#viewer').innerHTML=reportHTML(r,window._vf)}
 
-async function showLive(){const m=location.hash.match(/^#v=([^&]+)&f=(.+)$/);$('#app').style.display='none';$('#modal').style.display='none';const out=h=>$('#viewer').innerHTML=h,msg=t=>out('<p style="padding:20px">'+t+'</p>');out('<p style="padding:20px">Cargando reporte…</p>');
+async function showLive(){const m0=location.hash.match(/^#v=([^&]+)&(?:f=(.+)|p=([\w-]+))$/),m=m0&&[0,m0[1],m0[2]||b64e('https://'+m0[3]+'-default-rtdb.firebaseio.com')];$('#app').style.display='none';$('#modal').style.display='none';const out=h=>$('#viewer').innerHTML=h,msg=t=>out('<p style="padding:20px">'+t+'</p>');out('<p style="padding:20px">Cargando reporte…</p>');
  if(!m)return msg('El enlace del QR está incompleto. Volvé a escanearlo o generá el QR de nuevo desde la app.');
  let base,id=encodeURIComponent(m[1]);try{base=b64d(m[2])}catch(e){return msg('El enlace del QR no es válido. Generá el QR de nuevo desde la app.')}
  const get=async(path,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{return await (await fetch(base+'/publico/'+id+path+'.json',{signal:c.signal})).json()}finally{clearTimeout(t)}};
